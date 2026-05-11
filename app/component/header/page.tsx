@@ -59,7 +59,7 @@ function Header31() {
             {quickLinks.map((item) => (
               <Link
                 key={item.label}
-                href="#"
+                href="/"
                 className="hover:text-white hover:underline decoration-white underline-offset-4 transition-all duration-300 text-[clamp(7px,1.1vw,10px)] sm:text-[clamp(8px,1.3vw,11px)] md:text-[clamp(9px,1.5vw,12px)] px-0.5"
               >
                 {language == 'en' ? item.label : item.label2}

@@ -160,7 +160,7 @@ function Footer() {
                   {['f', 'in', 'x', 'ig'].map((icon) => (
                     <a
                       key={icon}
-                      href="#"
+                      href={icon === 'f' ? 'https://facebook.com' : icon === 'in' ? 'https://linkedin.com' : icon === 'x' ? 'https://x.com' : 'https://instagram.com'}
                       className="h-8 w-8 rounded-full bg-white/10 flex items-center justify-center text-sm font-bold text-white hover:bg-white hover:text-[#3d0f12] transition-all duration-300 border border-white/20"
                     >
                       {icon}
@@ -188,7 +188,7 @@ function Footer() {
                 {rulesLinks.map((link, i) => (
                   <li key={i}>
                     <a
-                      href={link.href}
+                      href={link.href === '#' ? '/' : link.href}
                       className="hover:text-white hover:translate-x-1 transition-all duration-200 inline-block"
                     >
                       {language == 'en' ? link.name : link.name2}
@@ -207,7 +207,7 @@ function Footer() {
                 {goiLinks.map((link, i) => (
                   <li key={i}>
                     <a
-                      href={link.href}
+                      href={link.href === '#' ? '/' : link.href}
                       className="hover:text-white hover:translate-x-1 transition-all duration-200 inline-block"
                     >
                       {language == 'en' ? link.name : link.name2}

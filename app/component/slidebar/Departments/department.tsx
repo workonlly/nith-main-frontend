@@ -170,7 +170,7 @@ function Department() {
                       {section.links.map((link) => (
                         <li key={link.title}>
                           <Link
-                            href={link.href}
+                            href={link.href === '#' ? '/' : link.href}
                             className="flex items-center justify-between group/link py-1.5 sm:py-2 px-1 sm:px-2 rounded-r hover:bg-gray-50 transition-all duration-300"
                           >
                             <div className="flex items-center gap-2 sm:gap-3">
