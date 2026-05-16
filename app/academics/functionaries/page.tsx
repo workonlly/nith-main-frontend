@@ -17,8 +17,19 @@ export default function FunctionariesPage() {
   const language = useSelector((state: RootState) => state.language.value);
   const [members, setMembers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [heroData, setHeroData] = useState<any>(null);
 
   useEffect(() => {
+    // Fetch Hero
+    fetch('http://localhost:5000/api/v1/academics/overview?page_name=functionaries')
+      .then(res => res.json())
+      .then(json => {
+        if (json.success && json.data.length > 0) {
+          setHeroData(json.data[0]);
+        }
+      });
+
+    // Fetch Members
     fetch('http://localhost:5000/api/v1/academics/tables')
       .then(res => res.json())
       .then(json => {
@@ -43,6 +54,9 @@ export default function FunctionariesPage() {
   }, []);
 
   if (loading) return <div className="min-h-screen flex items-center justify-center text-black">Loading...</div>;
+
+  const title = language === 'en' ? heroData?.title_en : heroData?.title_hi;
+  const description = language === 'en' ? heroData?.description_en : heroData?.description_hi;
 
   return (
     <div className="min-h-screen bg-white">
@@ -82,12 +96,12 @@ export default function FunctionariesPage() {
           className="relative z-10 text-center py-24 md:py-32 px-6 md:px-12"
         >
           <h1 className="text-5xl md:text-7xl font-black text-white tracking-tight mb-6">
-            {language === 'en' ? 'Functionaries' : 'पदाधिकारी'}
+            {title || (language === 'en' ? 'Functionaries' : 'पदाधिकारी')}
           </h1>
           <p className="text-white/80 max-w-2xl mx-auto text-lg md:text-xl leading-relaxed font-light">
-            {language === 'en'
+            {description || (language === 'en'
               ? 'Key academic administrative authorities and supporting staff of the Institute.'
-              : 'संस्थान के प्रमुख शैक्षणिक प्रशासनिक अधिकारी और सहायक कर्मचारी।'}
+              : 'संस्थान के प्रमुख शैक्षणिक प्रशासनिक अधिकारी और सहायक कर्मचारी।')}
           </p>
         </motion.div>
       </section>
