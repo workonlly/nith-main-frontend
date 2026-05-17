@@ -5,12 +5,25 @@ import Header31 from '@/app/components/header3';
 import Footer from '@/app/components/footer';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
+import { useEffect } from 'react';
 
 export default function Page() {
   const language = useSelector((state: RootState) => state.language.value);
+  useEffect(() => {
+    const fetchLanguage = async () => {
+      const data = await fetch('http://localhost:3000/api/getLanguage', {
+        method: 'GET',
+      });
+      const res = await data.json();
+      console.log(res);
+    };
+
+    fetchLanguage();
+  }, []);
+
   return (
     <div className="min-h-screen bg-white">
-      <Header31 />
+     
 
       <div className="bg-gray-50 py-4 px-6 md:px-12 border-b border-gray-200">
         <div className="max-w-7xl mx-auto">
