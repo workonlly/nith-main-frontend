@@ -37,7 +37,7 @@ export default function Page() {
   }, []);
 
   const filteredDocs = allCalendars.filter(doc => {
-    const title = doc.title.toLowerCase();
+    const title = doc.title?.toLowerCase() || '';
     if (tab === 'odd') return title.includes('odd');
     if (tab === 'even') return title.includes('even');
     return true;
