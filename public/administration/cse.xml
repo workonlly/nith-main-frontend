@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<department>
+
+  <info>
+    <title>Computer Science and Engineering</title>
+
+    <description>
+      Located in Hamirpur district of Himachal Pradesh, NIT Hamirpur enjoys a really scenic environment and pleasant weather.
+    </description>
+
+    <description>
+      Established in 1989 as the Department of Computer Science &amp; Engineering, we have an excellent history and strong academic culture.
+    </description>
+  </info>
+
+  <programmes>
+
+    <programme>
+      <name>B.Tech</name>
+      <icon>🎓</icon>
+      <details>
+        Four-year undergraduate programme focusing on core foundations and emerging technologies.
+      </details>
+    </programme>
+
+    <programme>
+      <name>Dual Degree</name>
+      <icon>📘</icon>
+      <details>
+        Integrated five-year B.Tech &amp; M.Tech programme.
+      </details>
+    </programme>
+
+    <programme>
+      <name>M.Tech</name>
+      <icon>🔬</icon>
+      <details>
+        Postgraduate excellence in Computer Science and Information Security.
+      </details>
+    </programme>
+
+    <programme>
+      <name>Ph.D</name>
+      <icon>⚗️</icon>
+      <details>
+        Advanced doctoral research programs in modern computing domains.
+      </details>
+    </programme>
+
+  </programmes>
+
+  <research>
+
+    <field>
+      <title>AI &amp; ML</title>
+      <description>
+        Research in machine learning and intelligent systems.
+      </description>
+    </field>
+
+    <field>
+      <title>Cyber Security</title>
+      <description>
+        Advanced security protocols and privacy systems.
+      </description>
+    </field>
+
+    <field>
+      <title>Cloud Computing</title>
+      <description>
+        Distributed systems and scalable computing research.
+      </description>
+    </field>
+
+    <field>
+      <title>IoT &amp; Robotics</title>
+      <description>
+        Smart devices and hardware-software integration.
+      </description>
+    </field>
+
+  </research>
+
+</department>
