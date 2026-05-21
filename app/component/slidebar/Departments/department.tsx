@@ -72,7 +72,7 @@ const departmentData = [
           {
             title: 'Mathematics & Scientific Computing',
             title2: 'गणित और वैज्ञानिक कंप्यूटिंग',
-            href: '#',
+            href: '/faculty-section/department/mnc',
           },
           {
             title: 'Physics & Photonics Science',
