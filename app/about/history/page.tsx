@@ -1,116 +1,150 @@
 'use client';
-import React from 'react';
+
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import Link from 'next/link';
-import Header31 from '../../components/header3';
-import { useSelector } from 'react-redux';
-import { RootState } from '../../store';
-import Footer from '../../components/footer';
-import { getAboutNithData } from '../api/api';
-import { useEffect, useState } from 'react';
 
-const fadeUp = {
-  hidden: {
-    opacity: 0,
-    y: 40,
-  },
-  visible: {
-    opacity: 1,
-    y: 0,
-  },
-};
 
-const fadeInLeft = {
-  hidden: {
-    opacity: 0,
-    x: -50,
-  },
-  visible: {
-    opacity: 1,
-    x: 0,
-  },
-};
+ import { useSelector } from 'react-redux';
+ import { RootState } from '../../store';
+ import Link from 'next/link';
+ import Header31 from '../../components/header3';
+ import Footer from '../../components/footer';
+ import { getHistoryData, getTimelineData } from '../api/api';
 
-const fadeInRight = {
-  hidden: {
-    opacity: 0,
-    x: 50,
-  },
-  visible: {
-    opacity: 1,
-    x: 0,
-  },
-};
 
-interface TimelineEvent {
-  year: string;
-  date: string;
-  title: string;
-  description: string;
+
+// ======================================================
+// SCHEMAS / INTERFACES (Safe for null values from Backend)
+// ======================================================
+interface HistoryData {
+  description1: string | null;
+  description1_hi?: string | null;
+  description2: string | null;
+  description2_hi?: string | null;
+  legacy: string | null;
+  legacy_hi?: string | null;
 }
 
-const timelineEvents: TimelineEvent[] = [
+interface TimelineEvent {
+  id?: number;
+  year: string;
+  event_date: string;
+  title: string | null;
+  title_hi?: string | null;
+  subtitle: string | null;
+  subtitle_hi?: string | null;
+  description: string | null;
+  description_hi?: string | null;
+}
+
+// ======================================================
+// FALLBACK DATA (For initial render or API failover)
+// ======================================================
+const fallbackHistoryData: HistoryData = {
+  description1: 'Regional Engineering College Hamirpur was established in 1986.',
+  description1_hi: 'क्षेत्रीय इंजीनियरिंग कॉलेज हमीरपुर की स्थापना 1986 में हुई थी।',
+  description2: 'The institute became NIT in 2002.',
+  description2_hi: 'संस्थान 2002 में एनआईटी बना।',
+  legacy: 'NIT Hamirpur has a strong legacy of excellence.',
+  legacy_hi: 'एनआईटी हमीरपुर की उत्कृष्टता की मजबूत विरासत है।',
+};
+
+const fallbackTimelineEvents: TimelineEvent[] = [
   {
+    id: 1,
     year: '1986',
-    date: '7 August 1986',
+    event_date: '1986-08-07',
     title: 'Establishment',
-    description:
-      'Regional Engineering College, Hamirpur founded with two departments (Civil & Electrical Engineering) with an intake of 30 students in each.',
+    title_hi: 'स्थापना',
+    subtitle: 'REC Hamirpur Founded',
+    subtitle_hi: 'आरईसी हमीरपुर स्थापित',
+    description: 'Regional Engineering College Hamirpur was established.',
+    description_hi: 'क्षेत्रीय इंजीनियरिंग कॉलेज हमीरपुर की स्थापना हुई।',
   },
   {
+    id: 2,
     year: '2002',
-    date: '26 June 2002',
+    event_date: '2002-06-26',
     title: 'Upgradation to NIT',
-    description:
-      'REC Hamirpur was awarded the status of Deemed University and upgraded to National Institute of Technology.',
-  },
-  {
-    year: '2007',
-    date: '5 June 2007',
-    title: 'National Importance Status',
-    description:
-      'NIT Hamirpur was recognized as an Institute of National Importance under the National Institutes of Technology Act, 2007.',
-  },
-  {
-    year: '2007',
-    date: '15 August 2007',
-    title: 'Act Enforced',
-    description:
-      'The NIT Act provisions came into effect on 15 August 2007 via notification S.O. 1384(E) by the MHRD.',
+    title_hi: 'एनआईटी में उन्नयन',
+    subtitle: 'Deemed University Status',
+    subtitle_hi: 'डीम्ड यूनिवर्सिटी का दर्जा',
+    description: 'REC Hamirpur became National Institute of Technology.',
+    description_hi: 'आरईसी हमीरपुर राष्ट्रीय प्रौद्योगिकी संस्थान बना।',
   },
 ];
 
-export default function HistoryPage() {
-  const language = useSelector((state: RootState) => state.language.value);
-  const [connectivityData, setConnectivityData] = useState<Record<
-    string,
-    unknown
-  > | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+const fadeUp = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0 }
+};
 
-  // Fetch data on component mount (ID 1 = History)
+const fadeInLeft = {
+  hidden: { opacity: 0, x: -30 },
+  visible: { opacity: 1, x: 0 }
+};
+
+const fadeInRight = {
+  hidden: { opacity: 0, x: 30 },
+  visible: { opacity: 1, x: 0 }
+};
+
+export default function HistoryPage() {
+  // Pull language configuration from your Redux store
+  // (In local, RootState will map directly to this store selector)
+  const language = useSelector((state: any) => state.language.value) as 'en' | 'hi';
+
+  const [historyData, setHistoryData] = useState<HistoryData>(fallbackHistoryData);
+  const [timelineEvents, setTimelineEvents] = useState<TimelineEvent[]>(fallbackTimelineEvents);
+  const [loading, setLoading] = useState(true);
+  const [apiFailed, setApiFailed] = useState(false);
+
+  // ======================================================
+  // DYNAMIC BILINGUAL RENDER LOGIC
+  // Falls back to alternative column text if one language is NULL
+  // ======================================================
+  const renderText = (enVal: string | null | undefined, hiVal: string | null | undefined): string => {
+    if (language === 'hi') {
+      return hiVal || enVal || '';
+    }
+    return enVal || hiVal || '';
+  };
+
+  // ======================================================
+  // FETCH API DATA
+  // ======================================================
   useEffect(() => {
-    async function fetchData() {
+    async function fetchAllData() {
       try {
         setLoading(true);
-        const response = await getAboutNithData(1);
 
-        if (response.success && response.data) {
-          setConnectivityData(response.data);
-        } else {
-          setError('History information not found');
+        const [history, timeline] = await Promise.all([
+          getHistoryData(),
+          getTimelineData(),
+        ]);
+
+        if (history) {
+          setHistoryData(history);
         }
-      } catch (err) {
-        setError('Failed to load history data');
-        console.error('History fetch error:', err);
+
+        if (timeline && timeline.length > 0) {
+          setTimelineEvents(timeline);
+        }
+      } catch (error) {
+        console.error('API failed, using local bilingual fallback data:', error);
+        setApiFailed(true);
       } finally {
         setLoading(false);
       }
     }
 
-    fetchData();
+    fetchAllData();
   }, []);
+
+  const headerDescription = renderText(historyData?.description1, historyData?.description1_hi);
+  const mainDescription = renderText(historyData?.description2, historyData?.description2_hi);
+  const activeLegacyText = renderText(historyData?.legacy, historyData?.legacy_hi);
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Header31 />
@@ -122,12 +156,16 @@ export default function HistoryPage() {
               href="/"
               className="hover:text-[#800000] transition-colors duration-200"
             >
-              Home
+              {language === 'hi' ? 'मुख्य पृष्ठ' : 'Home'}
             </Link>
             <span>›</span>
-            <span className="text-gray-400">About</span>
+            <span className="text-gray-400">
+              {language === 'hi' ? 'परिचय' : 'About'}
+            </span>
             <span>›</span>
-            <span className="text-[#800000] font-medium">History</span>
+            <span className="text-[#800000] font-medium">
+              {language === 'hi' ? 'इतिहास' : 'History'}
+            </span>
           </nav>
         </div>
       </div>
@@ -148,17 +186,18 @@ export default function HistoryPage() {
           className="relative z-10 text-center py-24 md:py-32 px-6 md:px-12"
         >
           <h1 className="text-5xl md:text-7xl font-black text-white tracking-tight mb-6">
-            Our History
+            {language === 'hi' ? 'हमारा इतिहास' : 'Our History'}
           </h1>
-          {connectivityData?.description ? (
+          {headerDescription ? (
             <div
               className="text-white/90 max-w-3xl mx-auto text-lg md:text-xl leading-relaxed font-light"
-              dangerouslySetInnerHTML={{ __html: connectivityData.description }}
+              dangerouslySetInnerHTML={{ __html: headerDescription }}
             />
           ) : (
             <p className="text-white/90 max-w-3xl mx-auto text-lg md:text-xl leading-relaxed font-light">
-              From our establishment in 1986 to becoming an Institute of
-              National Importance — a journey of excellence and growth.
+              {language === 'hi'
+                ? '1986 में हमारी स्थापना से लेकर राष्ट्रीय महत्व के संस्थान बनने तक — उत्कृष्टता और विकास की एक यात्रा।'
+                : 'From our establishment in 1986 to becoming an Institute of National Importance — a journey of excellence and growth.'}
             </p>
           )}
         </motion.div>
@@ -181,34 +220,47 @@ export default function HistoryPage() {
               transition={{ duration: 0.8, delay: 0.3 }}
               className="text-gray-700 leading-relaxed text-lg max-w-4xl mx-auto space-y-4"
             >
+              {mainDescription ? (
+                <div dangerouslySetInnerHTML={{ __html: mainDescription }} />
+              ) : (
+                <p>
+                  {language === 'hi' ? (
+                    <>
+                      राष्ट्रीय प्रौद्योगिकी संस्थान हमीरपुर (NIT Hamirpur) भारत के इकतीस एनआईटी में से एक है। यह{' '}
+                      <span className="font-semibold text-[#800000]">7 अगस्त 1986</span> को क्षेत्रीय इंजीनियरिंग कॉलेज
+                      (REC) के रूप में अस्तित्व में आया।
+                    </>
+                  ) : (
+                    <>
+                      National Institute of Technology Hamirpur (NIT Hamirpur) is one of the thirty-one NITs of India.
+                      It came into existence on <span className="font-semibold text-[#800000]">7th August 1986</span> as
+                      Regional Engineering College (REC) — a joint and cooperative enterprise of the Government of India
+                      and the Government of Himachal Pradesh.
+                    </>
+                  )}
+                </p>
+              )}
               <p>
-                National Institute of Technology Hamirpur (NIT Hamirpur) is one
-                of the thirty-one NITs of India. It came into existence on{' '}
-                <span className="font-semibold text-[#800000]">
-                  7th August 1986
-                </span>{' '}
-                as Regional Engineering College (REC) — a joint and cooperative
-                enterprise of the Government of India and the Government of
-                Himachal Pradesh.
-              </p>
-              <p>
-                At the time of its inception, the Institute had only two
-                departments:
+                {language === 'hi'
+                  ? 'अपनी स्थापना के समय, संस्थान में केवल दो विभाग थे:'
+                  : 'At the time of its inception, the Institute had only two departments:'}
               </p>
               <div className="flex justify-center gap-8 mt-6 mb-6">
                 <div className="bg-white px-6 py-3 rounded-lg shadow-md border border-gray-200">
                   <span className="font-semibold text-[#800000]">
-                    Civil Engineering
+                    {language === 'hi' ? 'सिविल इंजीनियरिंग' : 'Civil Engineering'}
                   </span>
                 </div>
                 <div className="bg-white px-6 py-3 rounded-lg shadow-md border border-gray-200">
                   <span className="font-semibold text-[#800000]">
-                    Electrical Engineering
+                    {language === 'hi' ? 'इलेक्ट्रिकल इंजीनियरिंग' : 'Electrical Engineering'}
                   </span>
                 </div>
               </div>
               <p className="text-gray-600 italic">
-                with an initial intake of 30 students in each.
+                {language === 'hi'
+                  ? 'प्रत्येक विभाग में ३० छात्रों की प्रारंभिक प्रवेश क्षमता थी।'
+                  : 'with an initial intake of 30 students in each.'}
               </p>
             </motion.div>
           </motion.div>
@@ -226,10 +278,12 @@ export default function HistoryPage() {
             className="text-center mb-16"
           >
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              Timeline
+              {language === 'hi' ? 'समयरेखा' : 'Timeline'}
             </h2>
             <p className="text-gray-600 max-w-2xl mx-auto text-lg leading-relaxed">
-              Key milestones in our journey from REC to NIT
+              {language === 'hi'
+                ? 'आरईसी से एनआईटी के सफर के मुख्य मील के पत्थर'
+                : 'Key milestones in our journey from REC to NIT'}
             </p>
           </motion.div>
 
@@ -238,9 +292,12 @@ export default function HistoryPage() {
 
             {timelineEvents.map((event, index) => {
               const isLeft = index % 2 === 0;
+              const activeTitle = renderText(event.title, event.title_hi);
+              const activeDescription = renderText(event.description, event.description_hi);
+
               return (
                 <motion.div
-                  key={index}
+                  key={event.id || index}
                   initial="hidden"
                   whileInView="visible"
                   viewport={{ once: true, margin: '-100px' }}
@@ -267,13 +324,13 @@ export default function HistoryPage() {
                         </span>
                       </div>
                       <h3 className="text-xl font-bold text-gray-800 mb-2">
-                        {event.title}
+                        {activeTitle}
                       </h3>
                       <p className="text-sm text-[#631012] font-medium mb-3">
-                        {event.date}
+                        {event.event_date}
                       </p>
                       <p className="text-gray-600 leading-relaxed">
-                        {event.description}
+                        {activeDescription}
                       </p>
                     </motion.div>
                   </div>
@@ -287,43 +344,48 @@ export default function HistoryPage() {
           <div className="md:hidden relative">
             <div className="absolute left-6 top-0 bottom-0 w-1 bg-gradient-to-b from-[#631012] via-[#8B1E1E] to-[#631012]"></div>
 
-            {timelineEvents.map((event, index) => (
-              <motion.div
-                key={index}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, margin: '-50px' }}
-                variants={fadeUp}
-                transition={{
-                  duration: 0.6,
-                  ease: 'easeOut',
-                  delay: index * 0.15,
-                }}
-                className="relative pl-16 pb-12 last:pb-0"
-              >
-                <div className="absolute left-4 top-0 w-5 h-5 bg-[#800000] rounded-full border-4 border-white shadow-lg z-10"></div>
+            {timelineEvents.map((event, index) => {
+              const activeTitle = renderText(event.title, event.title_hi);
+              const activeDescription = renderText(event.description, event.description_hi);
 
+              return (
                 <motion.div
-                  className="bg-white rounded-xl shadow-lg p-5 border border-gray-200"
-                  whileHover={{ scale: 1.02 }}
+                  key={event.id || index}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true, margin: '-50px' }}
+                  variants={fadeUp}
+                  transition={{
+                    duration: 0.6,
+                    ease: 'easeOut',
+                    delay: index * 0.15,
+                  }}
+                  className="relative pl-16 pb-12 last:pb-0"
                 >
-                  <div className="mb-2">
-                    <span className="inline-block bg-[#800000] text-white px-3 py-1 rounded-full text-xs font-semibold">
-                      {event.year}
-                    </span>
-                  </div>
-                  <h3 className="text-lg font-bold text-gray-800 mb-2">
-                    {event.title}
-                  </h3>
-                  <p className="text-sm text-[#800000] font-medium mb-2">
-                    {event.date}
-                  </p>
-                  <p className="text-gray-600 leading-relaxed text-sm">
-                    {event.description}
-                  </p>
+                  <div className="absolute left-4 top-0 w-5 h-5 bg-[#800000] rounded-full border-4 border-white shadow-lg z-10"></div>
+
+                  <motion.div
+                    className="bg-white rounded-xl shadow-lg p-5 border border-gray-200"
+                    whileHover={{ scale: 1.02 }}
+                  >
+                    <div className="mb-2">
+                      <span className="inline-block bg-[#800000] text-white px-3 py-1 rounded-full text-xs font-semibold">
+                        {event.year}
+                      </span>
+                    </div>
+                    <h3 className="text-lg font-bold text-gray-800 mb-2">
+                      {activeTitle}
+                    </h3>
+                    <p className="text-sm text-[#800000] font-medium mb-2">
+                      {event.event_date}
+                    </p>
+                    <p className="text-gray-600 leading-relaxed text-sm">
+                      {activeDescription}
+                    </p>
+                  </motion.div>
                 </motion.div>
-              </motion.div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
@@ -339,13 +401,13 @@ export default function HistoryPage() {
             className="text-center mb-16"
           >
             <span className="inline-block px-4 py-1.5 bg-[#800000]/5 text-[#800000] text-sm font-semibold rounded-full mb-4">
-              Transformation Story
+              {language === 'hi' ? 'रूपांतरण की कहानी' : 'Transformation Story'}
             </span>
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              Journey of Excellence
+              {language === 'hi' ? 'उत्कृष्टता का सफर' : 'Journey of Excellence'}
             </h2>
             <p className="text-gray-600 max-w-2xl mx-auto text-lg leading-relaxed">
-              From humble beginnings to national recognition
+              {language === 'hi' ? 'प्रारंभिक चरण से राष्ट्रीय गरिमा तक' : 'From humble beginnings to national recognition'}
             </p>
           </motion.div>
 
@@ -382,7 +444,7 @@ export default function HistoryPage() {
                       1986
                     </span>
                     <h3 className="text-2xl font-bold text-gray-900 group-hover:text-[#800000] transition-colors">
-                      The Beginning
+                      {language === 'hi' ? 'आरंभ' : 'The Beginning'}
                     </h3>
                   </div>
                 </div>
@@ -391,34 +453,18 @@ export default function HistoryPage() {
                     <div className="w-2 h-2 bg-[#800000] rounded-full mt-2 flex-shrink-0"></div>
                     <p className="text-gray-700 leading-relaxed">
                       <span className="font-bold text-gray-900">
-                        2 Departments:
+                        {language === 'hi' ? '२ विभाग:' : '2 Departments:'}
                       </span>{' '}
-                      Civil & Electrical Engineering
+                      {language === 'hi' ? 'सिविल और इलेक्ट्रिकल इंजीनियरिंग' : 'Civil & Electrical Engineering'}
                     </p>
                   </div>
                   <div className="flex items-start gap-3">
                     <div className="w-2 h-2 bg-[#800000] rounded-full mt-2 flex-shrink-0"></div>
                     <p className="text-gray-700 leading-relaxed">
                       <span className="font-bold text-gray-900">
-                        60 Students
+                        {language === 'hi' ? '६० विद्यार्थी:' : '60 Students:'}
                       </span>{' '}
-                      admitted in the inaugural batch
-                    </p>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <div className="w-2 h-2 bg-[#800000] rounded-full mt-2 flex-shrink-0"></div>
-                    <p className="text-gray-700 leading-relaxed">
-                      <span className="font-bold text-gray-900">
-                        Regional Status:
-                      </span>{' '}
-                      Established as REC Hamirpur
-                    </p>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <div className="w-2 h-2 bg-[#800000] rounded-full mt-2 flex-shrink-0"></div>
-                    <p className="text-gray-700 leading-relaxed">
-                      <span className="font-bold text-gray-900">Vision:</span>{' '}
-                      Quality technical education in the Himalayan region
+                      {language === 'hi' ? 'प्रथम बैच में कुल प्रवेश' : 'admitted in the inaugural batch'}
                     </p>
                   </div>
                 </div>
@@ -448,16 +494,16 @@ export default function HistoryPage() {
                         strokeLinecap="round"
                         strokeLinejoin="round"
                         strokeWidth={2}
-                        d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"
+                        d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138z"
                       />
                     </svg>
                   </div>
                   <div>
                     <span className="inline-block px-3 py-1 bg-[#800000]/10 text-[#800000] text-xs font-bold rounded-full mb-1">
-                      2025
+                      Present
                     </span>
                     <h3 className="text-2xl font-bold text-gray-900 group-hover:text-[#800000] transition-colors">
-                      Today
+                      {language === 'hi' ? 'आज का परिदृश्य' : 'Today'}
                     </h3>
                   </div>
                 </div>
@@ -466,36 +512,18 @@ export default function HistoryPage() {
                     <div className="w-2 h-2 bg-[#800000] rounded-full mt-2 flex-shrink-0"></div>
                     <p className="text-gray-700 leading-relaxed">
                       <span className="font-bold text-gray-900">
-                        20+ Departments:
+                        {language === 'hi' ? '२०+ विभाग:' : '20+ Departments:'}
                       </span>{' '}
-                      Engineering, Sciences & Management
+                      {language === 'hi' ? 'इंजीनियरिंग, विज्ञान और प्रबंधन' : 'Engineering, Sciences & Management'}
                     </p>
                   </div>
                   <div className="flex items-start gap-3">
                     <div className="w-2 h-2 bg-[#800000] rounded-full mt-2 flex-shrink-0"></div>
                     <p className="text-gray-700 leading-relaxed">
                       <span className="font-bold text-gray-900">
-                        5000+ Students
+                        {language === 'hi' ? '५०००+ विद्यार्थी:' : '5000+ Students:'}
                       </span>{' '}
-                      pursuing UG, PG & Doctoral programs
-                    </p>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <div className="w-2 h-2 bg-[#800000] rounded-full mt-2 flex-shrink-0"></div>
-                    <p className="text-gray-700 leading-relaxed">
-                      <span className="font-bold text-gray-900">
-                        National Importance:
-                      </span>{' '}
-                      Premier Technical Institution of India
-                    </p>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <div className="w-2 h-2 bg-[#800000] rounded-full mt-2 flex-shrink-0"></div>
-                    <p className="text-gray-700 leading-relaxed">
-                      <span className="font-bold text-gray-900">
-                        Excellence:
-                      </span>{' '}
-                      Research, Innovation & Academic Leadership
+                      {language === 'hi' ? 'अध्ययनरत शैक्षणिक कार्यक्रम' : 'pursuing UG, PG & Doctoral programs'}
                     </p>
                   </div>
                 </div>
@@ -531,19 +559,20 @@ export default function HistoryPage() {
               </div>
               <div className="flex-1 text-center md:text-left">
                 <h4 className="text-2xl md:text-3xl font-bold mb-4">
-                  Continuing the Legacy of Excellence
+                  {language === 'hi' ? 'उत्कृष्टता की निरंतर विरासत' : 'Continuing the Legacy of Excellence'}
                 </h4>
-                <p className="text-white/90 leading-relaxed text-lg">
-                  From a modest beginning with just 2 departments and 60
-                  students to becoming one of India&apos;s premier technical
-                  institutions, our journey reflects unwavering commitment to
-                  excellence. The transformation from REC to NIT and recognition
-                  as an Institute of National Importance marks pivotal
-                  milestones. Today, with 20+ departments, 5000+ students, and
-                  world-class research facilities, we continue to shape the
-                  future through cutting-edge education, groundbreaking
-                  research, and innovation that serves the nation and beyond.
-                </p>
+                {activeLegacyText ? (
+                  <div
+                    className="text-white/90 leading-relaxed text-lg"
+                    dangerouslySetInnerHTML={{ __html: activeLegacyText }}
+                  />
+                ) : (
+                  <p className="text-white/90 leading-relaxed text-lg">
+                    {language === 'hi'
+                      ? 'सिर्फ 2 विभागों और 60 छात्रों की मामूली शुरुआत से आज भारत के प्रमुख तकनीकी संस्थानों में से एक बनने तक का हमारा सफर अद्वितीय प्रतिबद्धता को दर्शाता है।'
+                      : 'From a modest beginning with just 2 departments and 60 students to becoming one of India&apos;s premier technical institutions, our journey reflects unwavering commitment to excellence.'}
+                  </p>
+                )}
               </div>
             </div>
           </motion.div>

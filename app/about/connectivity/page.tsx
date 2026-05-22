@@ -1,194 +1,283 @@
 'use client';
-import React from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import Header31 from '../../components/header3';
 import Footer from '../../components/footer';
-import { getAboutNithData } from '../api/api';
-import { useEffect, useState } from 'react';
 
-const TrainIcon = () => (
-  <svg
-    className="w-8 h-8"
-    fill="none"
-    stroke="currentColor"
-    viewBox="0 0 24 24"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"
-    />
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0h-.01M15 17a2 2 0 104 0m-4 0h-.01M9 17h6"
-    />
+// Import our new endpoint client functions and interfaces
+import { getConnectivityCombinedData, ConnectivityCombinedResponse } from '../api/api';
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0 },
+};
+
+const fadeInScale = {
+  hidden: { opacity: 0, scale: 0.9 },
+  visible: { opacity: 1, scale: 1 },
+};
+
+// SVG Icon Node Generators to keep exact visual parity
+const AirIcon = () => (
+  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
   </svg>
 );
 
-const PlaneIcon = () => (
-  <svg
-    className="w-8 h-8"
-    fill="none"
-    stroke="currentColor"
-    viewBox="0 0 24 24"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
-    />
+const TrainIcon = () => (
+  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l2.414 2.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17h14" />
   </svg>
 );
 
 const BusIcon = () => (
-  <svg
-    className="w-8 h-8"
-    fill="none"
-    stroke="currentColor"
-    viewBox="0 0 24 24"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"
-    />
+  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
   </svg>
 );
 
-const fadeUp = {
-  hidden: {
-    opacity: 0,
-    y: 30,
-  },
-  visible: {
-    opacity: 1,
-    y: 0,
-  },
-};
-
-const fadeInScale = {
-  hidden: {
-    opacity: 0,
-    scale: 0.9,
-  },
-  visible: {
-    opacity: 1,
-    scale: 1,
-  },
-};
-
-interface ConnectivityInfo {
-  icon: React.ReactNode;
+interface LocalOptionUI {
+  icon: () => React.JSX.Element;
   title: string;
-  nearestPoint: string;
-  distance: string;
-  travelTime?: string;
-  services: string;
-  additionalInfo?: string;
+  description: string;
+  nearestLabel: string;
+  nearestValue: string;
+  distanceLabel: string;
+  distanceValue: string;
+  timeNeeded: string;
+  servicesLabel: string;
+  paragraphs: string[];
 }
+
+// Hardcoded layout data configurations used when database returns empty records
+const staticFallbackData = {
+  en: {
+    heroHeading: 'Getting Here',
+    heroDescription: 'Find out how to reach our beautiful campus located in Hamirpur, Himachal Pradesh, easily accessible by air, rail, or road.',
+    optionsLabel: 'MODES OF TRANSPORTATION',
+    optionsHeading: 'How to Reach Us',
+    optionsSubtitle: 'Select your preferred mode of travel to explore detailed dynamic routes, nearby transfer options, and local services info.',
+    travelOptions: [
+      {
+        icon: AirIcon,
+        title: 'By Air',
+        description: 'The nearest airports provide smooth connections via domestic flights from standard transit hubs.',
+        nearestLabel: 'Nearest Airport',
+        nearestValue: 'Gaggal Airport (Dharamshala) or Mohali International Airport',
+        distanceLabel: 'Distance',
+        distanceValue: '~85 km from Dharamshala, ~210 km from Mohali',
+        timeNeeded: 'Approx. 2.5 hours drive from Gaggal Airport',
+        servicesLabel: 'Available Services',
+        paragraphs: [
+          'Prepaid taxi counters are available inside the arrival halls at both airports for direct point-to-point drop-offs.',
+          'Car rental apps and localized private operators offer reliable custom drop services directly to the institutional gate lines.'
+        ]
+      },
+      {
+        icon: TrainIcon,
+        title: 'By Rail',
+        description: 'Broad gauge and narrow gauge rail options offer picturesque journeys directly through the lower foothills.',
+        nearestLabel: 'Nearest Station',
+        nearestValue: 'Una Himachal (Broad Gauge) or Amb Andaura',
+        distanceLabel: 'Distance',
+        distanceValue: '~80 km from Una terminal link',
+        timeNeeded: 'Approx. 2 hours taxi commute over smooth state highways',
+        servicesLabel: 'On-Station Transits',
+        paragraphs: [
+          'Direct express trains connect Una weekly to major junctions including New Delhi, Ambala, and Chandigarh stations.',
+          'State buses run frequent cross-routes directly from outside the main station exit gates to Hamirpur bus stands.'
+        ]
+      },
+      {
+        icon: BusIcon,
+        title: 'By Road',
+        description: 'An expansive national and state highway framework links the city cleanly with all neighboring north states.',
+        nearestLabel: 'Nearest Bus Hub',
+        nearestValue: 'Hamirpur ISBT (Inter-State Bus Terminus)',
+        distanceLabel: 'Distance',
+        distanceValue: 'Just 4 km away from the campus grounds',
+        timeNeeded: 'Local auto-rickshaws take less than 10 minutes to arrive',
+        servicesLabel: 'Highway Route Details',
+        paragraphs: [
+          'Frequent luxury AC Volvo services are operated daily by HRTC from ISBT Kashmiri Gate, New Delhi.',
+          'Direct connection corridors connect Hamirpur seamlessly to Chandigarh (4-5 hours) and Jalandhar pathways.'
+        ]
+      }
+    ]
+  },
+  hi: {
+    heroHeading: 'यहाँ कैसे पहुँचें',
+    heroDescription: 'हिमाचल प्रदेश के हमीरपुर में स्थित हमारे सुंदर परिसर तक पहुँचने के तरीके खोजें, जो हवाई, रेल या सड़क मार्ग से आसानी से सुलभ है।',
+    optionsLabel: 'परिवहन के साधन',
+    optionsHeading: 'हम तक कैसे पहुँचें',
+    optionsSubtitle: 'विस्तृत मार्गों, नजदीकी ट्रांसफर विकल्पों और स्थानीय सेवाओं की जानकारी के लिए अपने पसंदीदा यात्रा साधन का चयन करें।',
+    travelOptions: [
+      {
+        icon: AirIcon,
+        title: 'हवाई मार्ग से',
+        description: 'निकटतम हवाई अड्डे मानक पारगमन केंद्रों से घरेलू उड़ानों के माध्यम से सुचारू कनेक्शन प्रदान करते हैं।',
+        nearestLabel: 'निकटतम हवाई अड्डा',
+        nearestValue: 'गग्गल हवाई अड्डा (धर्मशाला) या मोहाली अंतर्राष्ट्रीय हवाई अड्डा',
+        distanceLabel: 'दूरी',
+        distanceValue: 'धर्मशाला से ~85 किमी, मोहाली से ~210 किमी',
+        timeNeeded: 'गग्गल हवाई अड्डे से लगभग 2.5 घंटे की ड्राइव',
+        servicesLabel: 'उपलब्ध सेवाएं',
+        paragraphs: [
+          'दोनों हवाई अड्डों पर आगमन हॉल के अंदर सीधे ड्रॉप-ऑफ के लिए प्रीपेड टैक्सी काउंटर उपलब्ध हैं।',
+          'कार रेंटल ऐप और स्थानीय निजी ऑपरेटर सीधे संस्थागत गेट तक विश्वसनीय कस्टम ड्रॉप सेवाएं प्रदान करते हैं।'
+        ]
+      },
+      {
+        icon: TrainIcon,
+        title: 'रेल मार्ग से',
+        description: 'ब्रॉड गेज और नैरो गेज रेल विकल्प निचली पहाड़ियों के माध्यम से सीधे सुंदर यात्राएं प्रदान करते हैं।',
+        nearestLabel: 'निकटतम स्टेशन',
+        nearestValue: 'ऊना हिमाचल (ब्रॉड गेज) या अम्ब अन्दौरा',
+        distanceLabel: 'दूरी',
+        distanceValue: 'ऊना टर्मिनल लिंक से ~80 किमी',
+        timeNeeded: 'चिकने राज्य राजमार्गों पर लगभग 2 घंटे का टैक्सी सफर',
+        servicesLabel: 'स्टेशन पर पारगमन',
+        paragraphs: [
+          'सीधी एक्सप्रेस ट्रेनें ऊना को साप्ताहिक रूप से नई दिल्ली, अंबाला और चंडीगढ़ स्टेशनों सहित प्रमुख जंक्शनों से जोड़ती हैं।',
+          'मुख्य स्टेशन निकास द्वारों के ठीक बाहर से हमीरपुर बस स्टैंड के लिए राज्य की बसें लगातार चलती हैं।'
+        ]
+      },
+      {
+        icon: BusIcon,
+        title: 'सड़क मार्ग से',
+        description: 'एक विस्तृत राष्ट्रीय और राज्य राजमार्ग ढांचा शहर को सभी पड़ोसी उत्तरी राज्यों से साफ तौर पर जोड़ता है।',
+        nearestLabel: 'निकटतम बस हब',
+        nearestValue: 'हमीरपुर आईएसबीटी (अंतर-राज्यीय बस टर्मिनस)',
+        distanceLabel: 'दूरी',
+        distanceValue: 'परिसर के मैदान से मात्र 4 किमी दूर',
+        timeNeeded: 'स्थानीय ऑटो-रिक्शा को पहुँचने में 10 मिनट से भी कम समय लगता है',
+        servicesLabel: 'राजमार्ग मार्ग विवरण',
+        paragraphs: [
+          'आईएसबीटी कश्मीरी गेट, नई दिल्ली से एचआरटीसी द्वारा प्रतिदिन लगातार लक्जरी एसी वोल्वो सेवाएं संचालित की जाती हैं।',
+          'सीधे संपर्क गलियारे हमीरपुर को चंडीगढ़ (4-5 घंटे) और जालंधर मार्गों से सहजता से जोड़ते हैं।'
+        ]
+      }
+    ]
+  }
+};
 
 export default function ConnectivityPage() {
   const language = useSelector((state: RootState) => state.language.value);
-  const connectivityModes: ConnectivityInfo[] = [
-    {
-      icon: <TrainIcon />,
-      title: 'By Rail',
-      nearestPoint: 'Una Railway Station (Himachal Pradesh)',
-      distance: 'Approximately 80 km',
-      travelTime: '~2-3 hours',
-      services:
-        'Una is well-linked to all parts of the country. Regular bus and taxi services are available from Una to Hamirpur.',
-      additionalInfo:
-        'Trains from Delhi, Chandigarh, and Ambala connect to Una, from where road transport to Hamirpur takes around 2–3 hours.',
-    },
-    {
-      icon: <PlaneIcon />,
-      title: 'By Air',
-      nearestPoint: 'Dharamshala Airport (Gaggal, District Kangra)',
-      distance: 'About 75 km',
-      travelTime: '~2 hours',
-      services:
-        'Chandigarh International Airport — approximately 200 km (~4 hours). Both airports have taxi and cab facilities.',
-      additionalInfo:
-        'Both airports have taxi and cab facilities directly to Hamirpur, with scenic routes through the Himalayan foothills.',
-    },
-    {
-      icon: <BusIcon />,
-      title: 'By Road',
-      nearestPoint: 'National Highways NH-3',
-      distance: '450 km from Delhi | 200 km from Chandigarh',
-      travelTime: '~5 hours from Chandigarh',
-      services:
-        'Frequent HRTC and private bus services connect Hamirpur to Delhi, Chandigarh, Shimla, Dharamshala, and other major cities.',
-      additionalInfo:
-        'The campus is just 4 km from the main bus stand on the Hamirpur–Tauni Devi road.',
-    },
-  ];
-  const [connectivityData, setConnectivityData] = useState<Record<
-    string,
-    unknown
-  > | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [apiData, setApiData] = useState<ConnectivityCombinedResponse | null>(null);
 
-  // NEW: Fetch data on component mount (ID 6 = Connectivity)
   useEffect(() => {
-    async function fetchData() {
+    async function loadData() {
       try {
-        setLoading(true);
-        const response = await getAboutNithData(6); // ID 6 for Connectivity
-
-        if (response.success && response.data) {
-          setConnectivityData(response.data);
-        } else {
-          setError('Connectivity information not found');
-        }
+        const data = await getConnectivityCombinedData();
+        if (data) setApiData(data);
       } catch (err) {
-        setError('Failed to load connectivity data');
-        console.error('Connectivity fetch error:', err);
-      } finally {
-        setLoading(false);
+        console.error('Failed invoking remote connectivity payload endpoints, using defaults:', err);
       }
     }
-
-    fetchData();
+    loadData();
   }, []);
+
+  // ======================================================
+  // DATA PARSING ENGINE (CROSS-LANGUAGE RESOLUTION)
+  // ======================================================
+  const content = useMemo(() => {
+    const fbEn = staticFallbackData.en;
+    const fbHi = staticFallbackData.hi;
+    const fallback = language === 'hi' ? fbHi : fbEn;
+
+    if (!apiData) return fallback;
+
+    // Direct translation column picker (reverts to alternative string if database entry is empty/null)
+    const pickText = (en: string | null | undefined, hi: string | null | undefined, fallbackStr: string): string => {
+      if (language === 'hi') return hi || en || fallbackStr;
+      return en || hi || fallbackStr;
+    };
+
+    const heroHeading = pickText(apiData.pageData?.hero_heading_en, apiData.pageData?.hero_heading_hi, fallback.heroHeading);
+    const heroDescription = pickText(apiData.pageData?.hero_description_en, apiData.pageData?.hero_description_hi, fallback.heroDescription);
+    const optionsLabel = pickText(apiData.pageData?.travel_options_label_en, apiData.pageData?.travel_options_label_hi, fallback.optionsLabel);
+    const optionsHeading = pickText(apiData.pageData?.travel_options_heading_en, apiData.pageData?.travel_options_heading_hi, fallback.optionsHeading);
+    const optionsSubtitle = pickText(apiData.pageData?.travel_options_subtitle_en, apiData.pageData?.travel_options_subtitle_hi, fallback.optionsSubtitle);
+
+    // Dynamic compilation of Travel Option Cards
+    let travelOptions: LocalOptionUI[] = [];
+    if (apiData.travelOptions && apiData.travelOptions.length > 0) {
+      travelOptions = apiData.travelOptions.map((opt) => {
+        // Find configuration matched by type alias matching signature
+        const backupMatch = fbEn.travelOptions.find(b => b.title.toLowerCase().includes(opt.type || '')) || fbEn.travelOptions[0];
+        const activeBackupMatch = fallback.travelOptions.find(b => b.title.toLowerCase().includes(opt.type || '')) || fallback.travelOptions[0];
+
+        const title = pickText(opt.title_en, opt.title_hi, activeBackupMatch.title);
+        const description = pickText(opt.description_en, opt.description_hi, activeBackupMatch.description);
+        const nearestLabel = pickText(opt.nearest_point_label_en, opt.nearest_point_label_hi, activeBackupMatch.nearestLabel);
+        const nearestValue = pickText(opt.nearest_point_value_en, opt.nearest_point_value_hi, activeBackupMatch.nearestValue);
+        const distanceLabel = pickText(opt.distance_label_en, opt.distance_label_hi, activeBackupMatch.distanceLabel);
+        const distanceValue = pickText(opt.distance_value_en, opt.distance_value_hi, activeBackupMatch.distanceValue);
+        const timeNeeded = pickText(opt.time_needed_en, opt.time_needed_hi, activeBackupMatch.timeNeeded);
+        const servicesLabel = pickText(opt.services_label_en, opt.services_label_hi, activeBackupMatch.servicesLabel);
+
+        // Map bullet sub-strings lists array
+        let paragraphs: string[] = [];
+        if (opt.servicesParagraphs && opt.servicesParagraphs.length > 0) {
+          paragraphs = opt.servicesParagraphs.map(p => pickText(p.paragraph_en, p.paragraph_hi, ''));
+        } else {
+          paragraphs = activeBackupMatch.paragraphs;
+        }
+
+        // Return core matching icon elements dynamically based on DB classification values
+        let resolvedIcon = AirIcon;
+        if (opt.type === 'train') resolvedIcon = TrainIcon;
+        if (opt.type === 'bus') resolvedIcon = BusIcon;
+
+        return {
+          icon: resolvedIcon,
+          title,
+          description,
+          nearestLabel,
+          nearestValue,
+          distanceLabel,
+          distanceValue,
+          timeNeeded,
+          servicesLabel,
+          paragraphs
+        };
+      });
+    } else {
+      travelOptions = fallback.travelOptions;
+    }
+
+    return { heroHeading, heroDescription, optionsLabel, optionsHeading, optionsSubtitle, travelOptions };
+  }, [apiData, language]);
 
   return (
     <div className="min-h-screen bg-white">
       <Header31 />
 
+      {/* Breadcrumb Navigation Bar */}
       <div className="bg-gray-50 py-4 px-6 md:px-12 border-b border-gray-200">
         <div className="max-w-7xl mx-auto">
           <nav className="flex items-center space-x-2 text-sm text-gray-600">
-            <Link
-              href="/"
-              className="hover:text-[#800000] transition-colors duration-200"
-            >
-              Home
+            <Link href="/" className="hover:text-[#800000] transition-colors duration-200">
+              {language === 'en' ? 'Home' : 'मुख्य पृष्ठ'}
             </Link>
             <span>›</span>
-            <span className="text-gray-400">About</span>
+            <span className="text-gray-400">{language === 'en' ? 'About' : 'परिचय'}</span>
             <span>›</span>
-            <span className="text-[#800000] font-medium">Connectivity</span>
+            <span className="text-[#800000] font-medium">{language === 'en' ? 'Connectivity' : 'कनेक्टिविटी'}</span>
           </nav>
         </div>
       </div>
 
+      {/* Hero Header Section Banner */}
       <section className="relative bg-gradient-to-br from-[#800000] via-[#631012] to-[#8B1E1E] overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-20 left-20 w-72 h-72 bg-white rounded-full blur-3xl animate-pulse"></div>
           <div className="absolute bottom-20 right-20 w-96 h-96 bg-white rounded-full blur-3xl animate-pulse delay-700"></div>
         </div>
-
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMzLjMxNCAwIDYgMi42ODYgNiA2cy0yLjY4NiA2LTYgNi02LTIuNjg2LTYtNiAyLjY4Ni02IDYtNiIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjAuNSIgb3BhY2l0eT0iMC4xIi8+PC9nPjwvc3ZnPg==')] opacity-5"></div>
 
         <motion.div
@@ -199,24 +288,16 @@ export default function ConnectivityPage() {
           className="relative z-10 text-center py-24 md:py-32 px-6 md:px-12"
         >
           <h1 className="text-5xl md:text-7xl font-black text-white tracking-tight mb-6">
-            Connectivity
+            {content.heroHeading}
           </h1>
-          {connectivityData?.description ? (
-            <div
-              className="text-white/90 max-w-3xl mx-auto text-lg md:text-xl leading-relaxed font-light"
-              dangerouslySetInnerHTML={{ __html: connectivityData.description }}
-            />
-          ) : (
-            <p className="text-white/90 max-w-3xl mx-auto text-lg md:text-xl leading-relaxed font-light">
-              Well connected to all major cities through rail, air, and road
-              networks — situated amidst serene hills while offering excellent
-              accessibility
-            </p>
-          )}
+          <p className="text-white/90 max-w-3xl mx-auto text-lg md:text-xl leading-relaxed font-light">
+            {content.heroDescription}
+          </p>
         </motion.div>
       </section>
 
-      <section className="relative py-24 px-6 bg-gradient-to-b from-white via-gray-50/50 to-white">
+      {/* Transportation Main Grid Area Section */}
+      <section className="py-24 px-6 bg-gradient-to-b from-white via-gray-50/50 to-white">
         <div className="max-w-7xl mx-auto">
           <motion.div
             initial="hidden"
@@ -224,171 +305,91 @@ export default function ConnectivityPage() {
             viewport={{ once: true }}
             variants={fadeUp}
             transition={{ duration: 0.6 }}
-            className="text-center mb-16"
+            className="text-center mb-20"
           >
-            <span className="inline-block px-4 py-1.5 bg-[#800000]/5 text-[#800000] text-sm font-semibold rounded-full mb-4">
-              Travel Options
+            <span className="text-sm font-bold text-[#800000] tracking-widest uppercase bg-[#800000]/5 px-4 py-2 rounded-full">
+              {content.optionsLabel}
             </span>
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              How to Reach
+            <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900 mt-4 mb-4 tracking-tight">
+              {content.optionsHeading}
             </h2>
             <p className="text-gray-600 max-w-2xl mx-auto text-lg leading-relaxed">
-              Multiple convenient options to reach our campus
+              {content.optionsSubtitle}
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {connectivityModes.map((mode, index) => (
-              <motion.div
-                key={index}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, margin: '-50px' }}
-                variants={fadeInScale}
-                transition={{
-                  duration: 0.5,
-                  delay: index * 0.15,
-                  ease: 'easeOut',
-                }}
-                whileHover={{
-                  y: -8,
-                  transition: { type: 'spring', stiffness: 300 },
-                }}
-                className="bg-white border border-gray-200 rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300"
-              >
-                <div className="bg-[#800000] text-white py-6 flex items-center justify-center flex-col gap-3">
-                  <motion.div
-                    whileHover={{
-                      scale: 1.1,
-                      rotate: 5,
-                      transition: { type: 'spring', stiffness: 400 },
-                    }}
-                  >
-                    {mode.icon}
-                  </motion.div>
-                  <h3 className="text-lg font-semibold uppercase tracking-wide">
-                    {mode.title}
-                  </h3>
-                </div>
-
-                <div className="p-6 space-y-4">
-                  <div>
-                    <h4 className="text-sm font-semibold text-[#800000] mb-1">
-                      Nearest Point:
-                    </h4>
-                    <p className="text-gray-700 text-sm">{mode.nearestPoint}</p>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {content.travelOptions.map((option, index) => {
+              const IconComponent = option.icon;
+              return (
+                <motion.div
+                  key={index}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true }}
+                  variants={fadeInScale}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  whileHover={{ y: -8, transition: { type: 'spring', stiffness: 300 } }}
+                  className="bg-white rounded-3xl p-8 shadow-md hover:shadow-2xl border border-gray-100 transition-all duration-300 relative overflow-hidden"
+                >
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#800000] to-[#631012] flex items-center justify-center mb-6 text-white shadow-lg shadow-[#800000]/20">
+                    <IconComponent />
                   </div>
 
-                  <div>
-                    <h4 className="text-sm font-semibold text-[#800000] mb-1">
-                      Distance:
-                    </h4>
-                    <p className="text-gray-700 text-sm">{mode.distance}</p>
-                    {mode.travelTime && (
-                      <span className="inline-block mt-1 bg-[#800000]/10 text-[#800000] text-xs font-medium px-3 py-1 rounded-full">
-                        {mode.travelTime}
+                  <h3 className="text-2xl font-bold text-gray-900 mb-3">{option.title}</h3>
+                  <p className="text-gray-600 text-sm leading-relaxed mb-6 border-b border-gray-100 pb-4">
+                    {option.description}
+                  </p>
+
+                  <div className="space-y-4 text-sm mb-6">
+                    <div>
+                      <span className="block font-bold text-gray-400 uppercase text-[11px] tracking-wider mb-0.5">
+                        {option.nearestLabel}
                       </span>
-                    )}
-                  </div>
-
-                  <div>
-                    <h4 className="text-sm font-semibold text-[#800000] mb-1">
-                      Services Available:
-                    </h4>
-                    <p className="text-gray-600 text-sm leading-relaxed">
-                      {mode.services}
-                    </p>
-                  </div>
-
-                  {mode.additionalInfo && (
-                    <div className="pt-3 border-t border-gray-100">
-                      <p className="text-gray-600 text-xs leading-relaxed italic">
-                        {mode.additionalInfo}
-                      </p>
+                      <span className="text-gray-800 font-semibold">{option.nearestValue}</span>
                     </div>
-                  )}
-                </div>
-              </motion.div>
-            ))}
+
+                    <div className="grid grid-cols-2 gap-4 pt-1">
+                      <div>
+                        <span className="block font-bold text-gray-400 uppercase text-[11px] tracking-wider mb-0.5">
+                          {option.distanceLabel}
+                        </span>
+                        <span className="text-gray-700 font-medium">{option.distanceValue}</span>
+                      </div>
+                      <div>
+                        <span className="block font-bold text-gray-400 uppercase text-[11px] tracking-wider mb-0.5">
+                          {language === 'en' ? 'Time Estimation' : 'समय का अनुमान'}
+                        </span>
+                        <span className="text-gray-700 font-medium">{option.timeNeeded}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-gray-50/80 rounded-2xl p-5 border border-gray-100">
+                    <span className="block font-bold text-gray-900 text-xs tracking-wide uppercase mb-3">
+                      {option.servicesLabel}
+                    </span>
+                    <ul className="space-y-2.5 text-xs text-gray-600">
+                      {option.paragraphs.map((textLine, pIdx) => {
+                        if (!textLine) return null;
+                        return (
+                          <li key={pIdx} className="flex items-start gap-2">
+                            <span className="text-[#800000] font-bold mt-0.5">•</span>
+                            <span className="leading-relaxed">{textLine}</span>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                </motion.div>
+              );
+            })}
           </div>
         </div>
       </section>
 
-      <section className="relative py-24 px-6 bg-white">
-        <div className="max-w-7xl mx-auto">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={fadeUp}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-16"
-          >
-            <span className="inline-block px-4 py-1.5 bg-[#800000]/5 text-[#800000] text-sm font-semibold rounded-full mb-4">
-              Find Us
-            </span>
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              Campus Location Map
-            </h2>
-            <p className="text-gray-600 max-w-2xl mx-auto text-lg leading-relaxed">
-              Navigate to our campus with ease
-            </p>
-          </motion.div>
-
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={fadeUp}
-            transition={{ duration: 0.7, delay: 0.2 }}
-            className="max-w-5xl mx-auto"
-          >
-            <div className="bg-gradient-to-br from-gray-50 to-white rounded-3xl shadow-2xl p-6 md:p-8 border border-gray-200">
-              <div className="aspect-video w-full rounded-2xl overflow-hidden shadow-xl">
-                <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3404.8919045449387!2d76.52076631515635!3d31.456267681398645!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x391adb4924f6f56b%3A0x2e7c3c1c6ea930c5!2sNational%20Institute%20of%20Technology%2C%20Hamirpur!5e0!3m2!1sen!2sin!4v1635847891234!5m2!1sen!2sin"
-                  width="100%"
-                  height="100%"
-                  style={{ border: 0 }}
-                  allowFullScreen
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  title="NIT Hamirpur Location Map"
-                ></iframe>
-              </div>
-              <div className="mt-6 text-center">
-                <p className="text-gray-600 text-sm mb-3">
-                  National Institute of Technology Hamirpur, Anu, Hamirpur,
-                  Himachal Pradesh – 177005
-                </p>
-                <a
-                  href="https://www.google.com/maps/dir/?api=1&destination=National+Institute+of+Technology+Hamirpur"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 bg-[#800000] text-white px-6 py-3 rounded-lg font-medium hover:bg-[#631012] transition-colors shadow-md hover:shadow-lg"
-                >
-                  <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"
-                    />
-                  </svg>
-                  Get Directions
-                </a>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      <section className="relative py-24 px-6 bg-gradient-to-b from-white via-gray-50/50 to-white">
+      {/* Embedded Location Map Platform Block Area */}
+      <section className="py-20 bg-gray-50/50 border-t border-gray-100 px-6">
         <div className="max-w-5xl mx-auto">
           <motion.div
             initial="hidden"
@@ -398,98 +399,34 @@ export default function ConnectivityPage() {
             transition={{ duration: 0.6 }}
             className="text-center mb-12"
           >
-            <span className="inline-block px-4 py-1.5 bg-[#800000]/5 text-[#800000] text-sm font-semibold rounded-full mb-4">
-              Quick Reference
-            </span>
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              Quick Travel Guide
+            <h2 className="text-3xl font-black text-gray-900 tracking-tight mb-3">
+              {language === 'en' ? 'Interactive Campus Map' : 'इंटरैक्टिव कैंपस मैप'}
             </h2>
-            <p className="text-gray-600 max-w-2xl mx-auto text-lg leading-relaxed">
-              Essential travel information from major cities
+            <p className="text-gray-600 max-w-xl mx-auto">
+              {language === 'en'
+                ? 'Explore our institutional location details inside the valley area'
+                : 'घाटी क्षेत्र के भीतर हमारे संस्थागत स्थान विवरण का अन्वेषण करें'}
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 gap-6">
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              variants={fadeUp}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="bg-white rounded-2xl shadow-xl p-6 border-l-4 border-[#800000]"
-            >
-              <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-                <svg
-                  className="w-5 h-5 text-[#800000]"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-                From Delhi
-              </h3>
-              <ul className="space-y-2 text-sm text-gray-600">
-                <li className="flex items-start gap-2">
-                  <span className="text-[#800000] mt-1">•</span>
-                  <span>Distance: ~450 km</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-[#800000] mt-1">•</span>
-                  <span>By Road: 8-9 hours via NH-44 & NH-3</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-[#800000] mt-1">•</span>
-                  <span>By Train: Delhi to Una, then road to Hamirpur</span>
-                </li>
-              </ul>
-            </motion.div>
-
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              variants={fadeUp}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              className="bg-white rounded-2xl shadow-xl p-6 border-l-4 border-[#800000]"
-            >
-              <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-                <svg
-                  className="w-5 h-5 text-[#800000]"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-                From Chandigarh
-              </h3>
-              <ul className="space-y-2 text-sm text-gray-600">
-                <li className="flex items-start gap-2">
-                  <span className="text-[#800000] mt-1">•</span>
-                  <span>Distance: ~200 km</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-[#800000] mt-1">•</span>
-                  <span>By Road: 4-5 hours via NH-3</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-[#800000] mt-1">•</span>
-                  <span>Regular HRTC buses available</span>
-                </li>
-              </ul>
-            </motion.div>
-          </div>
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={fadeInScale}
+            transition={{ duration: 0.7, delay: 0.1 }}
+            className="bg-white rounded-3xl shadow-xl p-4 border border-gray-200"
+          >
+            <div className="aspect-video w-full rounded-2xl overflow-hidden shadow-inner">
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3404.8919045449387!2d76.52076631515635!3d31.456267681398645!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x391adb4924f6f56b%3A0x2e7/maps?q=NIT+Hamirpur&t=&z=13&ie=UTF8&iwloc=&output=embed"
+                className="w-full h-full border-0"
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+              />
+            </div>
+          </motion.div>
         </div>
       </section>
 

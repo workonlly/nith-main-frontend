@@ -1,13 +1,23 @@
 'use client';
+
+import React, { useEffect, useState, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import Header31 from '@/app/components/header3';
 import Footer from '@/app/components/footer';
-import { useEffect, useState } from 'react';
-import { getAboutNithData } from '../api/api';
 import { MapPin, Mountain, Route } from 'lucide-react';
+
+
+import {
+  getAboutCityMain,
+  getAboutCityInfoCards,
+  getAboutCityDescriptions,
+  AboutCityMainRaw,
+  AboutCityInfoCardRaw,
+  AboutCityDescriptionRaw
+} from '../api/api';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -25,62 +35,172 @@ interface CityInfoCard {
   subtitle: string;
 }
 
+// Icon dictionary to retain specific aesthetic layouts for dynamic data records
+const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+  location: MapPin,
+  altitude: Mountain,
+  connectivity: Route,
+  स्थान: MapPin,
+  ऊंचाई: Mountain,
+  संयोजकता: Route
+};
+
+// ======================================================
+// STATIC HARDCODED FALLBACK RECORDS
+// ======================================================
+const fallbackCityData = {
+  en: {
+    heading: 'About Hamirpur',
+    introduction: 'Set in the peaceful hills of Himachal Pradesh, Hamirpur offers a clean, calm, and welcoming environment for all who visit NIT Hamirpur. With its friendly community and natural beauty, the city creates the perfect backdrop for learning, growth, and new beginnings.',
+    overview_title: 'City Overview',
+    overview_subtitle: "Essential information about Hamirpur's location and characteristics",
+    infoCards: [
+      { icon: MapPin, title: 'Location', subtitle: 'Himachal Pradesh, India' },
+      { icon: Mountain, title: 'Altitude', subtitle: '785 metres' },
+      { icon: Route, title: 'Connectivity', subtitle: 'NH-3 & NH-103' }
+    ],
+    descriptions: [
+      'Hamirpur, the district headquarter, is situated at an altitude of 785 meters in the Himalayan State of Himachal Pradesh, India. Hamirpur is a clean and eco-friendly district and is famous for its high literacy rate.',
+      'Hamirpur City is surrounded by pine tree forest and has a good city infrastructure ranging from Quality Educational Institutions including NIT, State Universities and Skill Learning Centres.',
+      'During winter, the climate is cold but pleasant when woolens are required. During summer the maximum temperature is around 40 degrees Celsius and cottons are recommended.',
+      'It is a major junction on National Highway 3 while National Highway 103 starts from here. The bulk of the population speaks Hindi, with English widely understood.'
+    ]
+  },
+  hi: {
+    heading: 'हमीरपुर के बारे में',
+    introduction: 'हिमाचल प्रदेश की शांत पहाड़ियों में बसा हमीरपुर, एनआईटी हमीरपुर आने वाले सभी लोगों के लिए एक स्वच्छ, शांत और स्वागत योग्य वातावरण प्रदान करता है। अपने अनुकूल समुदाय और प्राकृतिक सुंदरता के साथ, शहर सीखने, विकास और नई शुरुआत के लिए आदर्श पृष्ठभूमि तैयार करता है।',
+    overview_title: 'शहर का अवलोकन',
+    overview_subtitle: 'हमीरपुर के स्थान और विशेषताओं के बारे में आवश्यक जानकारी',
+    infoCards: [
+      { icon: MapPin, title: 'स्थान', subtitle: 'हिमाचल प्रदेश, भारत' },
+      { icon: Mountain, title: 'ऊंचाई', subtitle: '785 मीटर' },
+      { icon: Route, title: 'संयोजकता', subtitle: 'NH-3 & NH-103' }
+    ],
+    descriptions: [
+      'हमीरपुर, जिला मुख्यालय, हिमाचल प्रदेश के हिमालयी राज्य में 785 मीटर की ऊंचाई पर स्थित है। हमीरपुर एक स्वच्छ और पर्यावरण के अनुकूल जिला है और अपनी उच्च साक्षरता दर के लिए प्रसिद्ध है।',
+      'हमीरपुर शहर देवदार के जंगल से घिरा हुआ है और NIT, राज्य विश्वविद्यालयों और कौशल सीखने के केंद्रों सहित गुणवत्ता वाली शैक्षणिक संस्थाओं की अच्छी शहरी बुनियादी ढांचे है।',
+      'सदियों में जलवायु ठंडी लेकिन सुखद होती है जब ऊनी कपड़ों की आवश्यकता होती है। गर्मी के दौरान अधिकतम तापमान लगभग 40 डिग्री सेल्सियस होता है और कपास की सिफारिश की जाती है।',
+      'यह राष्ट्रीय राजमार्ग 3 पर एक प्रमुख जंक्शन है जबकि राष्ट्रीय राजमार्ग 103 यहां से शुरू होता है। अधिकांश आबादी हिंदी बोलती है, अंग्रेजी व्यापक रूप से समझी जाती है।'
+    ]
+  }
+};
+
 export default function AboutCityPage() {
   const language = useSelector((state: RootState) => state.language.value);
 
-  const cityInfo: CityInfoCard[] = [
-    {
-      icon: MapPin,
-      title: language == 'en' ? 'Location' : 'स्थान',
-      subtitle:
-        language == 'en' ? 'Himachal Pradesh, India' : 'हिमाचल प्रदेश, भारत',
-    },
-    {
-      icon: Mountain,
-      title: language == 'en' ? 'Altitude' : 'ऊंचाई',
-      subtitle: language == 'en' ? '785 metres' : '785 मीटर',
-    },
-    {
-      icon: Route,
-      title: language == 'en' ? 'Connectivity' : 'संयोजकता',
-      subtitle: language == 'en' ? 'NH-3 & NH-103' : 'NH-3 & NH-103',
-    },
-  ];
-
-  const [connectivityData, setConnectivityData] = useState<Record<
-    string,
-    unknown
-  > | null>(null);
+  // Separate states for backend database collections
+  const [mainRaw, setMainRaw] = useState<AboutCityMainRaw | null>(null);
+  const [cardsRaw, setCardsRaw] = useState<AboutCityInfoCardRaw[]>([]);
+  const [descsRaw, setDescsRaw] = useState<AboutCityDescriptionRaw[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  // Fetch data on component mount (ID 2 = The City)
   useEffect(() => {
-    async function fetchData() {
+    async function fetchAllCityData() {
       try {
         setLoading(true);
-        const response = await getAboutNithData(2);
-
-        if (response.success && response.data) {
-          setConnectivityData(response.data);
-        } else {
-          setError('City information not found');
-        }
+        // Execute parallel backend queries
+        const [mainRes, cardsRes, descsRes] = await Promise.all([
+          getAboutCityMain(),
+          getAboutCityInfoCards(),
+          getAboutCityDescriptions()
+        ]);
+        
+        if (mainRes) setMainRaw(mainRes);
+        if (cardsRes) setCardsRaw(cardsRes);
+        if (descsRes) setDescsRaw(descsRes);
       } catch (err) {
-        setError('Failed to load city data');
-        console.error('City fetch error:', err);
+        console.error('Failed to load dynamic backend city records, utilizing built-in fallbacks:', err);
       } finally {
         setLoading(false);
       }
     }
 
-    fetchData();
+    fetchAllCityData();
   }, []);
+
+  // ======================================================
+  // INTERLOCKING BILINGUAL RESOLUTION LOGIC
+  // ======================================================
+  const computedData = useMemo(() => {
+    const fbEn = fallbackCityData.en;
+    const fbHi = fallbackCityData.hi;
+    const activeFallback = language === 'hi' ? fbHi : fbEn;
+
+    // Direct text evaluation across mutually exclusive columns
+    const getText = (
+      enVal: string | null | undefined, 
+      hiVal: string | null | undefined, 
+      fallbackDefault: string
+    ): string => {
+      if (language === 'hi') {
+        return hiVal || enVal || fallbackDefault;
+      }
+      return enVal || hiVal || fallbackDefault;
+    };
+
+    // 1. Resolve Heading, Introduction text, and Section Subtitles
+    const heading = mainRaw 
+      ? getText(mainRaw.heading_en, mainRaw.heading_hi, activeFallback.heading)
+      : activeFallback.heading;
+
+    const introduction = mainRaw
+      ? getText(mainRaw.introduction_en, mainRaw.introduction_hi, activeFallback.introduction)
+      : activeFallback.introduction;
+
+    const overview_title = mainRaw
+      ? getText(mainRaw.overview_title_en, mainRaw.overview_title_hi, activeFallback.overview_title)
+      : activeFallback.overview_title;
+
+    const overview_subtitle = mainRaw
+      ? getText(mainRaw.overview_subtitle_en, mainRaw.overview_subtitle_hi, activeFallback.overview_subtitle)
+      : activeFallback.overview_subtitle;
+
+    // 2. Resolve Dynamic Info Cards
+    let resolvedCards: CityInfoCard[] = [];
+    if (cardsRaw && cardsRaw.length > 0) {
+      resolvedCards = cardsRaw.map((card, index) => {
+        const titleText = getText(card.label_en, card.label_hi, fbEn.infoCards[index]?.title || 'Info');
+        const subtitleText = getText(card.value_en, card.value_hi, fbEn.infoCards[index]?.subtitle || '');
+        
+        // Find matching icon or map default sequential fallback icon
+        const lookupKey = titleText.toLowerCase().trim();
+        const IconComponent = iconMap[lookupKey] || fbEn.infoCards[index % fbEn.infoCards.length].icon;
+
+        return {
+          icon: IconComponent,
+          title: titleText,
+          subtitle: subtitleText
+        };
+      });
+    } else {
+      resolvedCards = activeFallback.infoCards;
+    }
+
+    // 3. Resolve Dynamic Layout Body Descriptions
+    let resolvedDescs: string[] = [];
+    if (descsRaw && descsRaw.length > 0) {
+      resolvedDescs = descsRaw.map((desc, index) => 
+        getText(desc.description_en, desc.description_hi, activeFallback.descriptions[index] || '')
+      );
+    } else {
+      resolvedDescs = activeFallback.descriptions;
+    }
+
+    return {
+      heading,
+      introduction,
+      overview_title,
+      overview_subtitle,
+      infoCards: resolvedCards,
+      descriptions: resolvedDescs
+    };
+  }, [mainRaw, cardsRaw, descsRaw, language]);
 
   return (
     <div className="min-h-screen bg-white">
       <Header31 />
 
+      {/* Breadcrumb Navigation Block */}
       <div className="bg-gray-50 py-4 px-6 md:px-12 border-b border-gray-200">
         <div className="max-w-7xl mx-auto">
           <nav className="flex items-center space-x-2 text-sm text-gray-600">
@@ -102,6 +222,7 @@ export default function AboutCityPage() {
         </div>
       </div>
 
+      {/* Hero Header Jumbotron Banner */}
       <section className="relative bg-gradient-to-br from-[#800000] via-[#631012] to-[#8B1E1E] overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-20 left-20 w-72 h-72 bg-white rounded-full blur-3xl animate-pulse"></div>
@@ -118,25 +239,16 @@ export default function AboutCityPage() {
           className="relative z-10 text-center py-24 md:py-32 px-6 md:px-12"
         >
           <h1 className="text-5xl md:text-7xl font-black text-white tracking-tight mb-6">
-            {language == 'en' ? 'About Hamirpur' : 'हमीरपुर के बारे में'}
+            {computedData.heading}
           </h1>
-          {connectivityData?.description ? (
-            <div
-              className="text-white/90 max-w-3xl mx-auto text-lg md:text-xl leading-relaxed font-light"
-              dangerouslySetInnerHTML={{ __html: connectivityData.description }}
-            />
-          ) : (
-            <p className="text-white/90 max-w-3xl mx-auto text-lg md:text-xl leading-relaxed font-light">
-              Set in the peaceful hills of Himachal Pradesh, Hamirpur offers a
-              clean, calm, and welcoming environment for all who visit NIT
-              Hamirpur. With its friendly community and natural beauty, the city
-              creates the perfect backdrop for learning, growth, and new
-              beginnings.
-            </p>
-          )}
+          <div
+            className="text-white/90 max-w-3xl mx-auto text-lg md:text-xl leading-relaxed font-light"
+            dangerouslySetInnerHTML={{ __html: computedData.introduction }}
+          />
         </motion.div>
       </section>
 
+      {/* Overview Grid Section */}
       <section className="relative py-24 px-6 bg-gradient-to-b from-white via-gray-50/50 to-white">
         <div className="max-w-7xl mx-auto">
           <motion.div
@@ -148,17 +260,16 @@ export default function AboutCityPage() {
             className="text-center mb-16"
           >
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              {language == 'en' ? 'City Overview' : 'शहर का अवलोकन'}
+              {computedData.overview_title}
             </h2>
             <p className="text-gray-600 max-w-2xl mx-auto text-lg leading-relaxed">
-              {language == 'en'
-                ? "Essential information about Hamirpur's location and characteristics"
-                : 'हमीरपुर के स्थान और विशेषताओं के बारे में आवश्यक जानकारी'}
+              {computedData.overview_subtitle}
             </p>
           </motion.div>
 
+          {/* Render cards dynamically from computed server state */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-            {cityInfo.map((info, index) => {
+            {computedData.infoCards.map((info, index) => {
               const Icon = info.icon;
               return (
                 <motion.div
@@ -193,6 +304,7 @@ export default function AboutCityPage() {
             })}
           </div>
 
+          {/* Dynamic Descriptive Paragraphs Section */}
           <motion.div
             initial="hidden"
             whileInView="visible"
@@ -202,50 +314,38 @@ export default function AboutCityPage() {
             className="bg-white rounded-3xl shadow-xl border border-gray-200 p-8 md:p-12"
           >
             <div className="grid md:grid-cols-2 gap-8">
+              {/* Left Column Description Layout Mapping */}
               <div className="space-y-4">
-                <div className="flex items-center gap-5">
-                  <div className="w-2 h-2 bg-[#800000] rounded-full mt-2 flex-shrink-0"></div>
-                  <p className="text-gray-700 leading-relaxed">
-                    {language == 'en'
-                      ? `Hamirpur, the district headquarter, is situated at an altitude of 785 meters in the Himalayan State of Himachal Pradesh, India. Hamirpur is a clean and eco-friendly district and is famous for its high literacy rate.`
-                      : `हमीरपुर, जिला मुख्यालय, हिमाचल प्रदेश के हिमालयी राज्य में 785 मीटर की ऊंचाई पर स्थित है। हमीरपुर एक स्वच्छ और पर्यावरण के अनुकूल जिला है और अपनी उच्च साक्षरता दर के लिए प्रसिद्ध है।`}
-                  </p>
-                </div>
-
-                <div className="flex items-center gap-5">
-                  <div className="w-2 h-2 bg-[#800000] rounded-full mt-2 flex-shrink-0"></div>
-                  <p className="text-gray-700 leading-relaxed">
-                    {language == 'en'
-                      ? `Hamirpur City is surrounded by pine tree forest and has a good city infrastructure ranging from Quality Educational Institutions including NIT, State Universities and Skill Learning Centres.`
-                      : `हमीरपुर शहर देवदार के जंगल से घिरा हुआ है और NIT, राज्य विश्वविद्यालयों और कौशल सीखने के केंद्रों सहित गुणवत्ता वाली शैक्षणिक संस्थाओं की अच्छी शहरी बुनियादी ढांचे है।`}
-                  </p>
-                </div>
+                {computedData.descriptions.slice(0, 2).map((text, idx) => (
+                  <div key={idx} className="flex items-start gap-5">
+                    <div className="w-2 h-2 bg-[#800000] rounded-full mt-2.5 flex-shrink-0"></div>
+                    <p className="text-gray-700 leading-relaxed">{text}</p>
+                  </div>
+                ))}
               </div>
 
+              {/* Right Column Description Layout Mapping */}
               <div className="space-y-4">
-                <div className="flex items-center gap-5">
-                  <div className="w-2 h-2 bg-[#800000] rounded-full mt-2 flex-shrink-0"></div>
-                  <p className="text-gray-700 leading-relaxed">
-                    {language == 'en'
-                      ? `During winter, the climate is cold but pleasant when woolens are required. During summer the maximum temperature is around 40 degrees Celsius and cottons are recommended.`
-                      : `सर्दियों में जलवायु ठंडी लेकिन सुखद होती है जब ऊनी कपड़ों की आवश्यकता होती है। गर्मी के दौरान अधिकतम तापमान लगभग 40 डिग्री सेल्सियस होता है और कपास की सिफारिश की जाती है।`}
-                  </p>
-                </div>
-
-                <div className="flex items-center gap-5">
-                  <div className="w-2 h-2 bg-[#800000] rounded-full mt-2 flex-shrink-0"></div>
-                  <p className="text-gray-700 leading-relaxed">
-                    {language == 'en'
-                      ? `It is a major junction on National Highway 3 while National Highway 103 starts from here. The bulk of the population speaks Hindi, with English widely understood.`
-                      : `यह राष्ट्रीय राजमार्ग 3 पर एक प्रमुख जंक्शन है जबकि राष्ट्रीय राजमार्ग 103 यहां से शुरू होता है। अधिकांश आबादी हिंदी बोलती है, अंग्रेजी व्यापक रूप से समझी जाती है।`}
-                  </p>
-                </div>
+                {computedData.descriptions.slice(2, 4).map((text, idx) => (
+                  <div key={idx} className="flex items-start gap-5">
+                    <div className="w-2 h-2 bg-[#800000] rounded-full mt-2.5 flex-shrink-0"></div>
+                    <p className="text-gray-700 leading-relaxed">{text}</p>
+                  </div>
+                ))}
+                {/* Fallback layout support if additional dynamic records are added to database table */}
+                {computedData.descriptions.slice(4).map((text, idx) => (
+                  <div key={idx + 4} className="flex items-start gap-5">
+                    <div className="w-2 h-2 bg-[#800000] rounded-full mt-2.5 flex-shrink-0"></div>
+                    <p className="text-gray-700 leading-relaxed">{text}</p>
+                  </div>
+                ))}
               </div>
             </div>
           </motion.div>
         </div>
       </section>
 
+      {/* Campus Embed Map Canvas Block */}
       <section className="relative py-24 px-6 bg-white">
         <div className="max-w-7xl mx-auto">
           <motion.div
