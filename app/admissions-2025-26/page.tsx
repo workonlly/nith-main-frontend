@@ -1,145 +1,351 @@
 'use client';
 
-import React from 'react';
-import { motion } from 'framer-motion';
-import Link from 'next/link';
-import Header31 from '@/app/components/header3';
-import Footer from '@/app/components/footer';
+import React, { useState, useEffect } from 'react';
+import {
+  Megaphone,
+  Calendar,
+  FileText,
+  AlertCircle,
+  ArrowRight,
+  X,
+} from 'lucide-react';
 
-const fadeUp = {
-  hidden: { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0 },
-};
+interface EventItem {
+  id: number;
+  title: string;
+  date: string;
+  description: string;
+  category: string;
+  created_at?: string;
+  updated_at?: string;
+}
 
-const PROGRAMS = [
-  {
-    id: 'ug',
-    label: 'BTech / BArch / Dual Degree (UG Programme)',
-    href: '/admissions-2025-26/ug',
-  },
-  {
-    id: 'mtech',
-    label: 'M.Tech. / M.Arch.',
-    href: '/admissions-2025-26/mtech',
-  },
-  { id: 'msc', label: 'MSc', href: '/admissions-2025-26/msc' },
-  { id: 'mba', label: 'MBA', href: '/admissions-2025-26/mba' },
-  { id: 'phd', label: 'Ph.D.', href: '/admissions-2025-26/phd' },
-];
+export default function events() {
+  const [events, setEvents] = useState<EventItem[]>([]);
+  const [selectedEvent, setSelectedEvent] = useState<EventItem | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-export default function Page() {
+  // Fetch events on component mount
+  useEffect(() => {
+    fetchEvents();
+  }, []);
+
+  const fetchEvents = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await fetch('http://localhost:4000/v1/homepage/event');
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch events: ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      if (result.success) {
+        setEvents(result.data.events);
+      } else {
+        throw new Error(result.message || 'Failed to fetch events');
+      }
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : 'An error occurred';
+      setError(errorMessage);
+      console.error('Error fetching events:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const closeModal = () => {
+    setSelectedEvent(null);
+  };
+
+  const formatDateForDisplay = (dateString: string): string => {
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return dateString;
+      
+      const month = date.toLocaleString('default', { month: 'short' }).toUpperCase();
+      const day = date.getDate();
+      return `${month} ${day}`;
+    } catch {
+      return dateString;
+    }
+  };
+
+  const getEventTypeLabel = (category: string): string => {
+    // Map category to type label for consistency
+    const typeMap: Record<string, string> = {
+      'Technical': 'ACADEMIC',
+      'Cultural': 'EVENT',
+      'Academic': 'ACADEMIC',
+      'Exam': 'EXAM',
+      'Admission': 'ADMISSION',
+      'Urgent': 'URGENT',
+    };
+    return typeMap[category] || category.toUpperCase();
+  };
+
+  if (loading) {
+    return (
+      <section className="w-full bg-gray-50 py-12 font-sans">
+        <div className="w-full px-4 sm:px-6 lg:px-8">
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            <div className="px-8 py-12 text-center">
+              <p className="text-lg text-gray-600">Loading events...</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section className="w-full bg-gray-50 py-12 font-sans">
+        <div className="w-full px-4 sm:px-6 lg:px-8">
+          <div className="bg-white rounded-xl border border-red-200 shadow-sm overflow-hidden">
+            <div className="px-8 py-12 text-center">
+              <p className="text-lg text-red-600 font-semibold mb-4">Error Loading Events</p>
+              <p className="text-gray-600 mb-6">{error}</p>
+              <button
+                onClick={fetchEvents}
+                className="bg-[#631012] hover:bg-[#7a1214] text-white px-6 py-2 rounded-lg transition-colors"
+              >
+                Try Again
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (events.length === 0) {
+    return (
+      <section className="w-full bg-gray-50 py-12 font-sans">
+        <div className="w-full px-4 sm:px-6 lg:px-8">
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            <div className="px-8 py-12 text-center">
+              <p className="text-lg text-gray-600">No events available</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-white">
-      <Header31 />
+    <section className="w-full bg-gray-50 py-12 font-sans">
+      {/* Container: Set to w-full to cover whole width */}
+      <div className="w-full px-4 sm:px-6 lg:px-8">
+        {/* The Card Container */}
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col w-full">
+          {/* Header */}
+          <div className="px-8 py-6 border-b border-gray-100 flex justify-between items-center bg-white z-10">
+            <div className="flex items-center gap-4">
+              <h2 className="text-4xl font-bold text-[#631012] underline tracking-tight">
+                Events
+              </h2>
+            </div>
+          </div>
 
-      <div className="bg-gray-50 py-4 px-6 md:px-12 border-b border-gray-200">
-        <div className="max-w-7xl mx-auto">
-          <nav className="flex items-center space-x-2 text-sm text-gray-600">
-            <Link
-              href="/"
-              className="hover:text-[#800000] transition-colors duration-200"
-            >
-              Home
-            </Link>
-            <span>›</span>
-            <span className="text-gray-400">Admissions</span>
-            <span>›</span>
-            <span className="text-[#800000] font-medium">
-              Admissions 2025-26
-            </span>
-          </nav>
+          {/* Single Column List (Flex-Col) */}
+          <div className="flex flex-col h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
+            {events.map((item) => (
+              <div
+                key={item.id}
+                className="group relative flex items-center justify-between py-6 px-8 border-b border-gray-100 hover:bg-[#631012]/5 transition-all duration-300 cursor-pointer"
+              >
+                {/* Left Side: Icon & Date */}
+                <div className="flex items-start gap-6 flex-1">
+                  {/* Date Box: Increased size to w-16 h-16 */}
+                  <div className="hidden sm:flex flex-col items-center justify-center w-16 h-16 flex-shrink-0 rounded-2xl bg-gray-50 border border-gray-200 text-gray-500 group-hover:border-[#631012]/20 group-hover:text-[#631012] transition-colors shadow-sm">
+                    <span className="text-xs font-bold uppercase tracking-wider opacity-70">
+                      {formatDateForDisplay(item.date).split(' ')[0]}
+                    </span>
+                    <span className="text-xl font-extrabold">
+                      {formatDateForDisplay(item.date).split(' ')[1]}
+                    </span>
+                  </div>
+
+                  {/* Content */}
+                  <div className="flex flex-col justify-center gap-2 pr-6">
+                    <div className="flex items-center gap-3">
+                      {/* Tag */}
+                      <span className="text-xs font-bold px-2.5 py-1 rounded-md border tracking-wide bg-gray-100 text-gray-600 border-gray-200 group-hover:bg-white">
+                        {getEventTypeLabel(item.category)}
+                      </span>
+                    </div>
+
+                    {/* Text: Increased to text-lg */}
+                    <p className="text-lg font-medium leading-relaxed transition-colors text-gray-700 group-hover:text-black">
+                      {item.title}
+                    </p>
+
+                    {/* Description Preview */}
+                    <p className="text-sm text-gray-600 line-clamp-1">
+                      {item.description}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Right Side: Arrow Action - Increased Size */}
+                <div className="flex-shrink-0 pl-4">
+                  <button
+                    onClick={() => setSelectedEvent(item)}
+                    className="w-12 h-12 rounded-full flex items-center justify-center text-gray-300 border border-transparent group-hover:bg-[#631012] group-hover:text-white group-hover:border-[#631012] transition-all duration-300 transform group-hover:translate-x-2 shadow-sm hover:scale-110"
+                  >
+                    <ArrowRight size={20} />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
-      <section className="relative bg-gradient-to-br from-[#800000] via-[#631012] to-[#8B1E1E] overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-20 left-20 w-72 h-72 bg-white rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-20 right-20 w-96 h-96 bg-white rounded-full blur-3xl animate-pulse delay-700"></div>
-        </div>
-
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMzLjMxNCAwIDYgMi42ODYgNiA2cy0yLjY4NiA2LTYgNi02LTIuNjg2LTYtNiAyLjY4Ni02IDYtNiIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjAuNSIgb3BhY2l0eT0iMC4xIi8+PC9nPjwvc3ZnPg==')] opacity-5"></div>
-
-        <motion.div
-          initial="hidden"
-          animate="visible"
-          variants={fadeUp}
-          transition={{ duration: 0.8 }}
-          className="relative z-10 text-center py-24 md:py-32 px-6 md:px-12"
+      {/* Full Page Modal */}
+      {selectedEvent && (
+        <div
+          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 animate-fade-in"
+          onClick={closeModal}
         >
-          <h1 className="text-5xl md:text-7xl font-black text-white tracking-tight mb-6">
-            Admissions 2025-26
-          </h1>
-          <p className="text-white/90 max-w-3xl mx-auto text-lg md:text-xl leading-relaxed font-light">
-            Admissions information and entry points for UG, PG and Research
-            programmes. Click a programme to go to its admissions page.
-          </p>
-        </motion.div>
-      </section>
-
-      <main className="max-w-7xl mx-auto p-6 space-y-8">
-        <section className="bg-white rounded-lg shadow-sm p-6">
-          <h2 className="text-2xl font-semibold text-gray-900 mb-4">
-            Apply for Admissions 2025-26
-          </h2>
-
-          <div className="overflow-x-auto">
-            <table className="w-full text-left table-fixed border-collapse">
-              <colgroup>
-                <col style={{ width: '6%' }} />
-                <col style={{ width: '70%' }} />
-                <col style={{ width: '24%' }} />
-              </colgroup>
-              <thead>
-                <tr className="bg-gray-50 text-sm text-gray-600">
-                  <th className="py-3 px-4">Sl.</th>
-                  <th className="py-3 px-4">Programme</th>
-                  <th className="py-3 px-4">Open Page</th>
-                </tr>
-              </thead>
-              <tbody>
-                {PROGRAMS.map((p, i) => (
-                  <tr
-                    key={p.id}
-                    className={`border-b hover:bg-gray-50 ${i % 2 === 1 ? 'bg-gray-50' : ''}`}
-                  >
-                    <td className="py-3 px-4 text-sm text-gray-700 align-top">
-                      {i + 1}
-                    </td>
-                    <td className="py-3 px-4 align-top text-gray-900 font-medium">
-                      {p.label}
-                    </td>
-                    <td className="py-3 px-4 align-top">
-                      <Link
-                        href={p.href}
-                        className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#800000] text-white rounded-full text-sm"
-                      >
-                        Open
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
-
-        <section className="bg-white rounded-lg shadow-sm p-6">
-          <h3 className="text-lg font-medium text-gray-900">Notes</h3>
-          <p className="mt-2 text-gray-700 text-sm">
-            Please ensure you follow the programme-specific instructions on each
-            admissions page. For queries contact the admissions office at{' '}
-            <a
-              href="mailto:admissions@nith.ac.in"
-              className="text-[#800000] underline"
+          <div
+            className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-scale-in relative"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close Button */}
+            <button
+              onClick={closeModal}
+              className="absolute top-6 right-6 p-2 hover:bg-gray-100 rounded-full transition-colors z-10"
             >
-              admissions@nith.ac.in
-            </a>
-            .
-          </p>
-        </section>
-      </main>
+              <X size={24} className="text-gray-600" />
+            </button>
 
-      <Footer />
-    </div>
+            {/* Modal Content */}
+            <div className="p-8 sm:p-12">
+              {/* Header Section */}
+              <div className="mb-8">
+                <div className="flex items-center gap-4 mb-4">
+                  {/* Date Box */}
+                  <div className="flex flex-col items-center justify-center w-20 h-20 rounded-2xl bg-gray-50 border-2 border-gray-200 shadow-sm">
+                    <span className="text-xs font-bold uppercase tracking-wider text-gray-500 opacity-70">
+                      {formatDateForDisplay(selectedEvent.date).split(' ')[0]}
+                    </span>
+                    <span className="text-2xl font-extrabold text-[#631012]">
+                      {formatDateForDisplay(selectedEvent.date).split(' ')[1]}
+                    </span>
+                  </div>
+
+                  {/* Badges */}
+                  <div className="flex flex-col gap-3">
+                    <div className="flex items-center gap-3">
+                      <span className="text-sm font-bold px-3 py-1.5 rounded-md border bg-gray-100 text-gray-600 border-gray-200">
+                        {getEventTypeLabel(selectedEvent.category)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Main Content */}
+              <div>
+                <h1 className="text-3xl sm:text-4xl font-bold text-[#171717] mb-4 leading-tight">
+                  {selectedEvent.title}
+                </h1>
+
+                <p className="text-lg text-gray-700 leading-relaxed mb-8">
+                  {selectedEvent.description}
+                </p>
+
+                {/* Additional Information Section */}
+                <div className="bg-gray-50 rounded-xl p-6 mb-8 border border-gray-200">
+                  <h3 className="font-semibold text-[#171717] mb-3">Details</h3>
+                  <div className="space-y-2 text-sm text-gray-600">
+                    <p>
+                      <span className="font-medium text-[#171717]">Date:</span>{' '}
+                      {formatDateForDisplay(selectedEvent.date)}
+                    </p>
+                    <p>
+                      <span className="font-medium text-[#171717]">Category:</span>{' '}
+                      {selectedEvent.category}
+                    </p>
+                    {selectedEvent.created_at && (
+                      <p>
+                        <span className="font-medium text-[#171717]">Posted:</span>{' '}
+                        {new Date(selectedEvent.created_at).toLocaleDateString()}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Close Button */}
+                <button
+                  onClick={closeModal}
+                  className="w-full bg-[#631012] hover:bg-[#7a1214] text-white font-semibold py-3 rounded-lg transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Styles for the custom scrollbar and animations */}
+      <style jsx global>{`
+        .scrollbar-thin::-webkit-scrollbar {
+          width: 6px;
+        }
+        .scrollbar-thin::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .scrollbar-thin::-webkit-scrollbar-thumb {
+          background-color: #e5e7eb;
+          border-radius: 20px;
+        }
+        .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+          background-color: #9ca3af;
+        }
+
+        @keyframes fade-in {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+
+        @keyframes scale-in {
+          from {
+            opacity: 0;
+            transform: scale(0.95);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+
+        .animate-fade-in {
+          animation: fade-in 0.3s ease-out;
+        }
+
+        .animate-scale-in {
+          animation: scale-in 0.3s ease-out;
+        }
+
+        .line-clamp-1 {
+          display: -webkit-box;
+          -webkit-line-clamp: 1;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+      `}</style>
+    </section>
   );
 }

@@ -5,119 +5,191 @@ import Image from 'next/image';
 
 interface Achievement {
   id: number;
-  tagline: string;
-  Heading: string;
-  description: string;
+
+  tagline_en: string;
+  tagline_hi: string;
+
+  heading_en: string;
+  heading_hi: string;
+
+  description_en: string;
+  description_hi: string;
+
   image: string;
-  createdAt: string;
-  updatedAt: string;
+
+  created_at?: string;
+  updated_at?: string;
 }
 
 interface TransformedAchievement {
   id: number;
-  title: string;
+
+  title_en: string;
+  title_hi: string;
+
+  description_en: string;
+  description_hi: string;
+
+  category_en: string;
+  category_hi: string;
+
   image: string;
-  description: string;
-  category: string;
 }
 
-// Mock Achievements Data
-const mockAchievements: Achievement[] = [
-  {
-    id: 1,
-    tagline: 'Academic Excellence',
-    Heading: 'Ranked Among Top Engineering Institutes',
-    description:
-      'NITH consistently ranked in top 20 engineering institutions in India for academic excellence and research contributions.',
-    image: '/nith.jpg',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 2,
-    tagline: 'Industry Recognition',
-    Heading: 'Strategic Partnerships with Leading Companies',
-    description:
-      'Collaborations with Fortune 500 companies and tech giants for placement and internship opportunities.',
-    image: '/award.jpg',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 3,
-    tagline: 'Research & Innovation',
-    Heading: 'Strong Research Output and Publications',
-    description:
-      'Faculty and students contributing to peer-reviewed journals and international research conferences.',
-    image: '/workshop.jpg',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-];
-
 function Achieve() {
-  const [achievements, setAchievements] = useState<TransformedAchievement[]>(
-    []
-  );
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [language, setLanguage] = useState<
+    'en' | 'hi'
+  >('en');
 
-  // Transform database achievement to display format
+  const [achievements, setAchievements] =
+    useState<TransformedAchievement[]>(
+      []
+    );
+
+  const [loading, setLoading] =
+    useState(true);
+
+  const [error, setError] = useState<
+    string | null
+  >(null);
+
+  const [selectedIndex, setSelectedIndex] =
+    useState(0);
+
+  // =========================
+  // TRANSFORM DATA
+  // =========================
+
   const transformAchievement = (
     achievement: Achievement
   ): TransformedAchievement => ({
     id: achievement.id,
-    title: achievement.Heading,
-    image: achievement.image,
-    description: achievement.description,
-    category: achievement.tagline, // Using tagline as category
+
+    title_en:
+      achievement.heading_en || '',
+
+    title_hi:
+      achievement.heading_hi || '',
+
+    description_en:
+      achievement.description_en || '',
+
+    description_hi:
+      achievement.description_hi || '',
+
+    category_en:
+      achievement.tagline_en || '',
+
+    category_hi:
+      achievement.tagline_hi || '',
+
+    image: achievement.image || '',
   });
 
+  // =========================
+  // FETCH DATA
+  // =========================
+
   useEffect(() => {
-    const fetchAchievements = async () => {
-      try {
-        setLoading(true);
-        // Simulate API delay
-        await new Promise((resolve) => setTimeout(resolve, 300));
-        const transformedAchievements =
-          mockAchievements.map(transformAchievement);
-        setAchievements(transformedAchievements);
-        if (transformedAchievements.length > 0) {
-          setSelectedIndex(0);
+    const fetchAchievements =
+      async () => {
+        try {
+          setLoading(true);
+
+          setError(null);
+
+          const res = await fetch(
+            'http://localhost:4000/v1/homepage/achievements'
+          );
+
+          const json = await res.json();
+
+          if (json.success) {
+            const transformedAchievements =
+              json.data.map(
+                transformAchievement
+              );
+
+            setAchievements(
+              transformedAchievements
+            );
+
+            if (
+              transformedAchievements.length >
+              0
+            ) {
+              setSelectedIndex(0);
+            }
+          } else {
+            setError(
+              'Failed to fetch achievements'
+            );
+          }
+        } catch (err) {
+          console.error(
+            'Error fetching achievements:',
+            err
+          );
+
+          setError(
+            'Error fetching achievements'
+          );
+        } finally {
+          setLoading(false);
         }
-      } catch (err) {
-        setError('Error fetching achievements');
-        console.error('Error fetching achievements:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
+      };
 
     fetchAchievements();
   }, []);
 
+  // =========================
+  // NAVIGATION
+  // =========================
+
   const handlePrev = () => {
-    if (achievements.length === 0) return;
+    if (achievements.length === 0)
+      return;
+
     setSelectedIndex(
-      (prev) => (prev - 1 + achievements.length) % achievements.length
+      (prev) =>
+        (prev -
+          1 +
+          achievements.length) %
+        achievements.length
     );
   };
 
   const handleNext = () => {
-    if (achievements.length === 0) return;
-    setSelectedIndex((prev) => (prev + 1) % achievements.length);
+    if (achievements.length === 0)
+      return;
+
+    setSelectedIndex(
+      (prev) =>
+        (prev + 1) %
+        achievements.length
+    );
   };
 
-  // Get visible cards for carousel
+  // =========================
+  // GET VISIBLE CARDS
+  // =========================
+
   const getVisibleCards = () => {
-    if (achievements.length === 0) return [];
+    if (achievements.length === 0)
+      return [];
 
     const result = [];
+
     for (let i = -2; i <= 2; i++) {
       const idx =
-        (selectedIndex + i + achievements.length) % achievements.length;
-      const achievement = achievements[idx];
+        (selectedIndex +
+          i +
+          achievements.length) %
+        achievements.length;
+
+      const achievement =
+        achievements[idx];
+
       if (achievement) {
         result.push({
           achievement,
@@ -126,171 +198,311 @@ function Achieve() {
         });
       }
     }
+
     return result;
   };
 
-  const visibleCards = getVisibleCards();
+  const visibleCards =
+    getVisibleCards();
 
-  // Loading state
+  // =========================
+  // LOADING
+  // =========================
+
   if (loading) {
     return (
       <section className="py-16 px-6 bg-white">
         <div className="max-w-7xl mx-auto">
-          <h2 className="text-4xl font-bold text-[#631012] mb-12 border-b-4 border-[#631012] pb-2 inline-block">
-            Achievements
-          </h2>
+          <div className="flex items-center justify-between mb-12">
+            <h2 className="text-4xl font-bold text-[#631012] border-b-4 border-[#631012] pb-2 inline-block">
+              {language === 'en'
+                ? 'Achievements'
+                : 'उपलब्धियाँ'}
+            </h2>
+
+            {/* LANGUAGE TOGGLE */}
+            <div className="flex items-center bg-[#F3F3F3] rounded-full p-1 border border-[#631012]/20">
+              <button
+                onClick={() =>
+                  setLanguage('en')
+                }
+                className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${
+                  language === 'en'
+                    ? 'bg-[#631012] text-white'
+                    : 'text-[#631012]'
+                }`}
+              >
+                English
+              </button>
+
+              <button
+                onClick={() =>
+                  setLanguage('hi')
+                }
+                className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${
+                  language === 'hi'
+                    ? 'bg-[#631012] text-white'
+                    : 'text-[#631012]'
+                }`}
+              >
+                हिन्दी
+              </button>
+            </div>
+          </div>
+
           <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#631012]"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#631012]" />
           </div>
         </div>
       </section>
     );
   }
 
-  // Error state
+  // =========================
+  // ERROR
+  // =========================
+
   if (error) {
     return (
       <section className="py-16 px-6 bg-white">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-4xl font-bold text-[#631012] mb-12 border-b-4 border-[#631012] pb-2 inline-block">
-            Achievements
+            {language === 'en'
+              ? 'Achievements'
+              : 'उपलब्धियाँ'}
           </h2>
+
           <div className="flex justify-center items-center h-64">
-            <p className="text-gray-600">{error}</p>
+            <p className="text-gray-600">
+              {error}
+            </p>
           </div>
         </div>
       </section>
     );
   }
 
-  // Empty state
+  // =========================
+  // EMPTY
+  // =========================
+
   if (achievements.length === 0) {
     return (
       <section className="py-16 px-6 bg-white">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-4xl font-bold text-[#631012] mb-12 border-b-4 border-[#631012] pb-2 inline-block">
-            Achievements
+            {language === 'en'
+              ? 'Achievements'
+              : 'उपलब्धियाँ'}
           </h2>
+
           <div className="flex justify-center items-center h-64">
-            <p className="text-gray-600">No achievements available</p>
+            <p className="text-gray-600">
+              {language === 'en'
+                ? 'No achievements available'
+                : 'कोई उपलब्धि उपलब्ध नहीं है'}
+            </p>
           </div>
         </div>
       </section>
     );
   }
 
+  // =========================
+  // UI
+  // =========================
+
   return (
     <section className="py-16 px-6 bg-white">
       <div className="max-w-7xl mx-auto">
-        <h2 className="text-4xl font-bold text-[#631012] mb-12 border-b-4 border-[#631012] pb-2 inline-block">
-          Achievements
-        </h2>
+        {/* HEADER */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-5 mb-12">
+          <h2 className="text-4xl font-bold text-[#631012] border-b-4 border-[#631012] pb-2 inline-block">
+            {language === 'en'
+              ? 'Achievements'
+              : 'उपलब्धियाँ'}
+          </h2>
 
-        {/* Carousel with navigation buttons */}
+          {/* LANGUAGE TOGGLE */}
+          <div className="flex items-center bg-[#F3F3F3] rounded-full p-1 border border-[#631012]/20 w-fit">
+            <button
+              onClick={() =>
+                setLanguage('en')
+              }
+              className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${
+                language === 'en'
+                  ? 'bg-[#631012] text-white shadow'
+                  : 'text-[#631012]'
+              }`}
+            >
+              English
+            </button>
+
+            <button
+              onClick={() =>
+                setLanguage('hi')
+              }
+              className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${
+                language === 'hi'
+                  ? 'bg-[#631012] text-white shadow'
+                  : 'text-[#631012]'
+              }`}
+            >
+              हिन्दी
+            </button>
+          </div>
+        </div>
+
+        {/* CAROUSEL */}
         <div className="flex items-center gap-8">
-          {/* Left navigation button */}
+          {/* LEFT BUTTON */}
           <button
             onClick={handlePrev}
-            className="flex-shrink-0 w-12 h-12 rounded-full bg-[#631012] text-white font-bold text-xl hover:bg-red-900 transition-all duration-300 flex items-center justify-center shadow-lg hover:shadow-xl transform hover:scale-110"
+            className="flex-shrink-0 w-12 h-12 rounded-full bg-[#631012] text-white font-bold text-xl hover:bg-red-900 transition-all duration-300 flex items-center justify-center shadow-lg hover:scale-110"
           >
             ←
           </button>
 
-          {/* Carousel container */}
+          {/* CARDS */}
           <div className="flex-1 overflow-hidden">
-            <div className="relative h-100 flex items-center justify-center">
-              {/* Scrollable cards container */}
-              <div className="relative w-full h-full flex items-center justify-center perspective">
-                {visibleCards.map(({ achievement, index, offset }) => {
-                  // Safety check to ensure achievement exists
-                  if (!achievement) return null;
+            <div className="relative h-[500px] flex items-center justify-center">
+              <div className="relative w-full h-full flex items-center justify-center">
+                {visibleCards.map(
+                  ({
+                    achievement,
+                    index,
+                    offset,
+                  }) => {
+                    const isCenter =
+                      offset === 0;
 
-                  const isCenter = offset === 0;
-                  let scale = 0.7;
-                  let opacity = 0.4;
-                  let zIndex = 10 + offset;
+                    let scale = 0.7;
 
-                  if (offset === -1 || offset === 1) {
-                    scale = 0.85;
-                    opacity = 0.7;
-                    zIndex = 20;
-                  } else if (isCenter) {
-                    scale = 1;
-                    opacity = 1;
-                    zIndex = 30;
-                  }
+                    let opacity = 0.4;
 
-                  return (
-                    <div
-                      key={`${achievement.id}-${offset}-${index}`}
-                      onClick={() => setSelectedIndex(index)}
-                      className="absolute cursor-pointer transition-all duration-500 ease-out"
-                      style={{
-                        transform: `translateX(${offset * 280}px) scale(${scale})`,
-                        opacity: opacity,
-                        zIndex: zIndex,
-                      }}
-                    >
-                      {/* Card */}
+                    let zIndex =
+                      10 + offset;
+
+                    if (
+                      offset === -1 ||
+                      offset === 1
+                    ) {
+                      scale = 0.85;
+
+                      opacity = 0.7;
+
+                      zIndex = 20;
+                    } else if (
+                      isCenter
+                    ) {
+                      scale = 1;
+
+                      opacity = 1;
+
+                      zIndex = 30;
+                    }
+
+                    return (
                       <div
-                        className={`w-72 bg-white rounded-xl overflow-hidden border-2 transition-all duration-300 ${
-                          isCenter
-                            ? 'border-[#631012] shadow-xl'
-                            : 'border-gray-200 shadow-md hover:shadow-lg'
-                        }`}
+                        key={`${achievement.id}-${offset}-${index}`}
+                        onClick={() =>
+                          setSelectedIndex(
+                            index
+                          )
+                        }
+                        className="absolute cursor-pointer transition-all duration-500 ease-out"
+                        style={{
+                          transform: `translateX(${
+                            offset * 280
+                          }px) scale(${scale})`,
+                          opacity,
+                          zIndex,
+                        }}
                       >
-                        {/* Image */}
-                        <div className="relative h-48 overflow-hidden bg-gray-100">
-                          <Image
-                            src={achievement.image || '/placeholder.jpg'}
-                            alt={achievement.title || 'Achievement'}
-                            fill
-                            className="object-cover hover:scale-110 transition-transform duration-500"
-                          />
-                        </div>
-
-                        {/* Content */}
-                        <div className="p-6">
-                          {/* Category badge */}
-                          <div className="mb-3">
-                            <span className="inline-block px-3 py-1 bg-[#631012]/10 text-[#631012] text-xs font-bold rounded-full border border-[#631012]/30">
-                              {achievement.category || 'General'}
-                            </span>
+                        {/* CARD */}
+                        <div
+                          className={`w-72 bg-white rounded-xl overflow-hidden border-2 transition-all duration-300 ${
+                            isCenter
+                              ? 'border-[#631012] shadow-xl'
+                              : 'border-gray-200 shadow-md hover:shadow-lg'
+                          }`}
+                        >
+                          {/* IMAGE */}
+                          <div className="relative h-48 overflow-hidden bg-gray-100">
+                            <Image
+                              src={
+                                achievement.image ||
+                                '/placeholder.jpg'
+                              }
+                              alt={
+                                language ===
+                                'en'
+                                  ? achievement.title_en ||
+                                    'Achievement'
+                                  : achievement.title_hi ||
+                                    'उपलब्धि'
+                              }
+                              fill
+                              className="object-cover hover:scale-110 transition-transform duration-500"
+                            />
                           </div>
 
-                          {/* Title */}
-                          <h3 className="text-lg font-bold text-[#631012] mb-3 line-clamp-2">
-                            {achievement.title || 'Untitled Achievement'}
-                          </h3>
+                          {/* CONTENT */}
+                          <div className="p-6">
+                            {/* CATEGORY */}
+                            <div className="mb-3">
+                              <span className="inline-block px-3 py-1 bg-[#631012]/10 text-[#631012] text-xs font-bold rounded-full border border-[#631012]/30">
+                                {language ===
+                                'en'
+                                  ? achievement.category_en ||
+                                    'General'
+                                  : achievement.category_hi ||
+                                    'सामान्य'}
+                              </span>
+                            </div>
 
-                          {/* Description */}
-                          <p className="text-gray-700 text-sm leading-relaxed line-clamp-2">
-                            {achievement.description ||
-                              'No description available'}
-                          </p>
+                            {/* TITLE */}
+                            <h3 className="text-lg font-bold text-[#631012] mb-3 line-clamp-2">
+                              {language ===
+                              'en'
+                                ? achievement.title_en
+                                : achievement.title_hi}
+                            </h3>
+
+                            {/* DESCRIPTION */}
+                            <p className="text-gray-700 text-sm leading-relaxed line-clamp-3">
+                              {language ===
+                              'en'
+                                ? achievement.description_en
+                                : achievement.description_hi}
+                            </p>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  }
+                )}
               </div>
             </div>
           </div>
 
-          {/* Right navigation button */}
+          {/* RIGHT BUTTON */}
           <button
             onClick={handleNext}
-            className="flex-shrink-0 w-12 h-12 rounded-full bg-[#631012] text-white font-bold text-xl hover:bg-red-900 transition-all duration-300 flex items-center justify-center shadow-lg hover:shadow-xl transform hover:scale-110"
+            className="flex-shrink-0 w-12 h-12 rounded-full bg-[#631012] text-white font-bold text-xl hover:bg-red-900 transition-all duration-300 flex items-center justify-center shadow-lg hover:scale-110"
           >
             →
           </button>
         </div>
 
-        {/* Counter */}
+        {/* COUNTER */}
         <div className="flex justify-center mt-8">
           <p className="text-gray-600 font-semibold text-sm">
             <span className="text-[#631012] font-bold">
-              {achievements.length > 0 ? selectedIndex + 1 : 0}
+              {achievements.length >
+              0
+                ? selectedIndex + 1
+                : 0}
             </span>{' '}
             / {achievements.length}
           </p>

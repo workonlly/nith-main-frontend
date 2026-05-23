@@ -8,7 +8,8 @@ import Achieve from './homepage/achievements/achieve';
 import Director from './homepage/directormessage/director';
 import Gallery from './homepage/gallery/gallery';
 import Hero from './homepage/hero/hero';
-import Academics from './homepage/academics/page';
+import Academics from './homepage/academics/academics';
+import Admissions from './homepage/admissions/admissions';
 
 export default function Home() {
   return (
@@ -22,16 +23,22 @@ export default function Home() {
       <main>
         <div className="flex flex-col md:flex-row gap-2 md:gap-4">
           <section id="events" className="flex-1">
-            <Event />
+            <Event/>
           </section>
           <section className="flex-1">
-            <Academics />
+            <Academics/>
           </section>
         </div>
-
-        <section id="news">
+<div className="flex flex-col md:flex-row gap-2 md:gap-4">
+        
+<section className="flex-1">
+  <Admissions/>
+</section>
+        <section id="news" className="flex-1">
           <News />
         </section>
+        </div>
+
         {/* About Us section */}
         <section id="aboutus">
           <Aboutus />
