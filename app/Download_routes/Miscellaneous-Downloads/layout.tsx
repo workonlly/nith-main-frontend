@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation'; 
+import { usePathname } from 'next/navigation';
 import Header31 from '@/app/components/header3';
 import Footer from '@/app/components/footer'; 
 
@@ -29,22 +29,16 @@ export default function DownloadsLayout({
 
   const [metaData, setMetaData] = useState<PageMeta | null>(null);
 
+  // Define your tabs here for cleaner code
   const tabs = [
     {
-      name: language === 'en' ? 'Faculty & Staff' : 'संकाय और कर्मचारी',
-      href: '/Download_routes/Download-for-Faculty',
-    },
-    {
-      name: language === 'en' ? 'CPDA' : 'सीपीडीए',
-      href: '/Download_routes/Download-for-Faculty/cdpa',
-    },
-    {
-      name: language === 'en' ? 'Workshop/Conference' : 'कार्यशाला/सम्मेलन',
-      href: '/Download_routes/Download-for-Faculty/conference-fdp',
-    },
-  ];
+      name: language === 'en' ? 'General' : 'सामान्य',
+      href: '/Download_routes/Miscellaneous-Downloads/general',
+    }
+]
 
-  useEffect(() => {
+
+useEffect(() => {
   const fetchMeta = async () => {
     try {
       const API_BASE = "http://localhost:4000/v1/downloads";
@@ -53,15 +47,15 @@ export default function DownloadsLayout({
 
       const data = await res.json();
 
-      // find faculty page meta
-      const facultyMeta = Array.isArray(data)
-        ? data.find((item) => item.page_type === "faculty")
+      // find students page meta
+      const studentsMeta = Array.isArray(data)
+        ? data.find((item) => item.page_type === "miscellaneous")
         : data?.data?.find(
-            (item: PageMeta) => item.page_type === "faculty"
+            (item: PageMeta) => item.page_type === "miscellaneous"
           );
 
-      if (facultyMeta) {
-        setMetaData(facultyMeta);
+      if (studentsMeta) {
+        setMetaData(studentsMeta);
       }
     } catch (err) {
       console.error("Meta fetch error:", err);
@@ -87,9 +81,7 @@ export default function DownloadsLayout({
             </Link>
             <span>›</span>
             <span className="font-medium text-gray-900">
-             {language === 'en'
-                 ?'Downloads for Faculty'
-                :'संकाय के लिए डाउनलोड'}
+              {language === "en" ? " Miscellaneous Downloads" : "विविध डाउनलोड्स"}
             </span>
           </nav>
         </div>
@@ -105,17 +97,16 @@ export default function DownloadsLayout({
             className="text-center"
           >
             <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-              {language === 'en'
-                ?  metaData?.heading_en || 'Downloads for Faculty'
-                : metaData?.heading_hi || 'संकाय के लिए डाउनलोड'}
+              {language === "en" 
+              ? metaData?.heading_en || " Miscellaneous Downloads"
+             : metaData?.heading_hi || "विविध डाउनलोड्स"}
             </h1>
             <p className="text-lg md:text-xl text-gray-200 max-w-3xl mx-auto">
-              {language === 'en'
-               ?metaData?.subheading_en ||
-                'Latest Downloads for Faculty, announcements, and updates from the NITH Downloads for Faculty community.'
-                :metaData?.subheading_hi ||
-                 'एनआईटीएच संकाय के लिए डाउनलोड, घोषणाएं और नवीनतम अपडेट।'}
-
+               {language === "en"
+                ?metaData?.subheading_en ||
+              "Access miscellaneous documents and resources"
+               :metaData?.subheading_hi ||
+              " विविध दस्तावेज़ और संसाधन प्राप्त करें"}
             </p>
           </motion.div>
         </div>
@@ -157,10 +148,3 @@ export default function DownloadsLayout({
     </div>
   );
 }
-
-
-
-
-
-
-
