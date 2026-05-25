@@ -1,5 +1,5 @@
 'use client';
-
+// Trigger hot reload for routing tree
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSelector } from 'react-redux';
