@@ -208,12 +208,18 @@ export default function FacultyNewsroom() {
                             <div className="flex gap-3 md:flex-col lg:flex-row">
                                 <a 
                                     href={notice.view_url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
                                     className="flex items-center gap-2 px-5 py-2.5 bg-gray-900 text-white rounded-xl text-sm font-bold hover:bg-gray-800 transition-colors"
                                 >
                                     <Eye size={16} /> {language === 'en' ? 'View' : 'देखें'}
                                 </a>
                                 <a 
-                                    href={notice.download_url}
+                                    href={notice.download_url.startsWith('http') 
+                                        ? `${notice.download_url}${notice.download_url.includes('?') ? '&' : '?'}response-content-disposition=attachment` 
+                                        : notice.download_url
+                                    }
+                                    download
                                     className="flex items-center gap-2 px-5 py-2.5 bg-[#631012] text-white rounded-xl text-sm font-bold hover:bg-[#7a1214] transition-colors shadow-lg shadow-[#631012]/20"
                                 >
                                     <Download size={16} /> {language === 'en' ? 'Download' : 'डाउनलोड'}

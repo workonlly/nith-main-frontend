@@ -18,25 +18,6 @@ interface MoUItem {
   file_type: string;
 }
 
-const INITIAL_MOUS: MoUItem[] = [
-  {
-    id: -1,
-    title_en: 'MoU between NITH Alumni Association and EPACK Durable Limited',
-    title_hn: 'एनआईटीएच पूर्व छात्र संघ और ईपैक ड्यूरेबल लिमिटेड के बीच समझौता ज्ञापन',
-    drafted_date: '2025-01-10',
-    document_url: '/documents/mou/mou-epack.pdf',
-    file_type: 'pdf'
-  },
-  {
-    id: -2,
-    title_en: 'MoU for Alumni Mentorship Program with Tech Innovators',
-    title_hn: 'टेक इनोवेटर्स के साथ पूर्व छात्र परामर्श कार्यक्रम के लिए समझौता ज्ञापन',
-    drafted_date: '2024-12-15',
-    document_url: '/documents/mou/mou-mentorship.pdf',
-    file_type: 'pdf'
-  }
-];
-
 const ITEMS_PER_PAGE = 10;
 
 export default function AlumniRelatedMou() {
@@ -58,16 +39,10 @@ export default function AlumniRelatedMou() {
         const lRes = await fetch('http://localhost:4000/api/alumni-mou/list');
         const lData = await lRes.json();
         
-        let merged = Array.isArray(lData) ? [...lData] : [];
-        INITIAL_MOUS.forEach(def => {
-          if (!merged.find(m => m.title_en === def.title_en || String(m.id) === String(def.id))) {
-            merged.push(def);
-          }
-        });
-        setMous(merged);
+        setMous(Array.isArray(lData) ? lData : []);
       } catch (err) {
         console.error('Error fetching MoUs:', err);
-        setMous(INITIAL_MOUS);
+        setMous([]);
       } finally {
         setLoading(false);
       }

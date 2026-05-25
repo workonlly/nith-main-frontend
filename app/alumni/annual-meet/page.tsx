@@ -105,6 +105,7 @@ export default function AnnualAlumniMeet() {
 
   const [selectedYear, setSelectedYear] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState<number | null>(null);
+  const [customLightboxUrl, setCustomLightboxUrl] = useState<string | null>(null);
   const [showAllPastMeets, setShowAllPastMeets] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -296,13 +297,21 @@ export default function AnnualAlumniMeet() {
                     </div>
 
                     <div className="hidden md:block">
-                      <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-                        <div className="aspect-video bg-white/20 rounded-lg flex items-center justify-center">
-                          <svg className="w-24 h-24 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                          </svg>
+                      <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20 w-80">
+                        <div className="aspect-video bg-white/20 rounded-lg overflow-hidden flex items-center justify-center relative shadow-inner">
+                          {heading.upcoming_image ? (
+                            <img
+                              src={heading.upcoming_image}
+                              alt="Upcoming Reunion promotional banner"
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <svg className="w-16 h-16 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                            </svg>
+                          )}
                         </div>
-                        <div className="mt-4 text-center text-white/80 text-sm">
+                        <div className="mt-4 text-center text-white/80 text-sm font-medium">
                           {isHindi ? 'कार्यक्रम प्रचार छवि' : 'Event promotional image'}
                         </div>
                       </div>
@@ -487,7 +496,7 @@ export default function AnnualAlumniMeet() {
                             </button>
                           </div>
 
-                          <div className="prose max-w-none">
+                          <div className="prose max-w-none mb-4">
                             <p className="text-gray-700 leading-relaxed">
                               <span className="font-semibold text-gray-800">
                                 {isHindi ? 'मुख्य विशेषताएं:' : 'Highlights:'}{' '}
@@ -495,6 +504,30 @@ export default function AnnualAlumniMeet() {
                               {isHindi ? meet.highlights_hn : meet.highlights_en}
                             </p>
                           </div>
+
+                          {/* Interactive Past Reunion Thumbnail Strip */}
+                          {meet.images && getPastMeetImages(meet.images).length > 0 && (
+                            <div className="mt-4">
+                              <div className="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wider">
+                                {isHindi ? 'पुनर्मिलन क्षण:' : 'Reunion Moments:'}
+                              </div>
+                              <div className="flex flex-wrap gap-3">
+                                {getPastMeetImages(meet.images).map((imgUrl, i) => (
+                                  <div
+                                    key={i}
+                                    className="w-20 h-16 rounded-lg overflow-hidden border border-gray-200 relative group cursor-pointer shadow-sm hover:shadow-md transition-shadow"
+                                    onClick={() => setCustomLightboxUrl(imgUrl)}
+                                  >
+                                    <img
+                                      src={imgUrl}
+                                      alt={`Past reunion ${meet.year} photo ${i + 1}`}
+                                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                                    />
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </motion.div>
@@ -578,8 +611,18 @@ export default function AnnualAlumniMeet() {
                           onClick={() => setSelectedImage(image.id)}
                         >
                           <div className="aspect-video bg-gradient-to-br from-gray-200 to-gray-300 relative overflow-hidden">
+                            {image.url ? (
+                              <img
+                                src={image.url}
+                                alt={isHindi ? image.caption_hn : image.caption_en}
+                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                onError={(e) => {
+                                  (e.target as HTMLImageElement).style.display = 'none';
+                                }}
+                              />
+                            ) : null}
                             {/* Visual fallback icon representation if image does not load or path is template */}
-                            <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+                            <div className="absolute inset-0 flex items-center justify-center bg-gray-100 -z-10">
                               <svg className="w-16 h-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                               </svg>
@@ -759,10 +802,18 @@ export default function AnnualAlumniMeet() {
               className="max-w-4xl max-h-[85vh] w-full flex flex-col items-center justify-center gap-4 bg-white/5 backdrop-blur-md p-6 rounded-2xl border border-white/10"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="w-full aspect-video bg-gradient-to-br from-white/5 to-white/10 rounded-xl relative overflow-hidden flex items-center justify-center">
-                <svg className="w-24 h-24 text-white/10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
+              <div className="w-full max-h-[60vh] rounded-xl relative overflow-hidden flex items-center justify-center bg-gradient-to-br from-white/5 to-white/10">
+                {activeImageObj.url ? (
+                  <img
+                    src={activeImageObj.url}
+                    alt={isHindi ? activeImageObj.caption_hn : activeImageObj.caption_en}
+                    className="max-w-full max-h-[60vh] object-contain rounded-xl"
+                  />
+                ) : (
+                  <svg className="w-24 h-24 text-white/10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                )}
               </div>
               <div className="text-center text-white">
                 <span className="inline-block px-3 py-1 bg-white/20 rounded text-xs font-semibold mb-2">
@@ -771,6 +822,38 @@ export default function AnnualAlumniMeet() {
                 <h4 className="text-lg font-bold">
                   {isHindi ? activeImageObj.caption_hn : activeImageObj.caption_en}
                 </h4>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Dynamic Custom Lightbox Modal */}
+      <AnimatePresence>
+        {customLightboxUrl !== null && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4 cursor-zoom-out"
+            onClick={() => setCustomLightboxUrl(null)}
+          >
+            <button className="absolute top-4 right-4 text-white hover:text-gray-300 p-2 rounded bg-white/10 hover:bg-white/25">
+              ✕
+            </button>
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="max-w-4xl max-h-[85vh] w-full flex flex-col items-center justify-center gap-4 bg-white/5 backdrop-blur-md p-6 rounded-2xl border border-white/10"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="w-full max-h-[60vh] rounded-xl relative overflow-hidden flex items-center justify-center">
+                <img
+                  src={customLightboxUrl}
+                  alt="Reunion moment highlights"
+                  className="max-w-full max-h-[60vh] object-contain rounded-xl"
+                />
               </div>
             </motion.div>
           </motion.div>
