@@ -10,7 +10,7 @@ import {
   X,
 } from 'lucide-react';
 
-interface AcademicItem {
+interface NewsItem {
   id?: number;
   title_en: string;
   title_hi: string;
@@ -63,47 +63,47 @@ const convertToHindiNumerals = (str: string): string => {
     .join('');
 };
 
-export default function Academics() {
-  const [academics, setAcademics] = useState<AcademicItem[]>([]);
-  const [selectedAcademic, setSelectedAcademic] = useState<AcademicItem | null>(null);
+export default function Newss() {
+  const [newss, setNewss] = useState<NewsItem[]>([]);
+  const [selectedNews, setSelectedNews] = useState<NewsItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lang, setLang] = useState<Lang>('en');
 
-  // Fetch academics on component mount
+  // Fetch newss on component mount
   useEffect(() => {
-    fetchAcademics();
+    fetchNewss();
   }, []);
 
-  const fetchAcademics = async () => {
+  const fetchNewss = async () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch('http://localhost:4000/v1/homepage/academic');
+      const response = await fetch('http://localhost:4000/v1/homepage/news');
 
       if (!response.ok) {
-        throw new Error(`Failed to fetch academics: ${response.status}`);
+        throw new Error(`Failed to fetch newss: ${response.status}`);
       }
 
       const result = await response.json();
 
       if (result.success) {
-        setAcademics(result.data.academics);
+        setNewss(result.data.newss);
       } else {
-        throw new Error(result.message || 'Failed to fetch academics');
+        throw new Error(result.message || 'Failed to fetch newss');
       }
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : 'An error occurred';
       setError(errorMessage);
-      console.error('Error fetching academics:', err);
+      console.error('Error fetching newss:', err);
     } finally {
       setLoading(false);
     }
   };
 
   const closeModal = () => {
-    setSelectedAcademic(null);
+    setSelectedNews(null);
   };
 
   const formatDateForDisplayEn = (dateString: string): string => {
@@ -162,7 +162,7 @@ export default function Academics() {
           <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
             <div className="px-8 py-12 text-center">
               <p className="text-lg text-gray-600">
-                {lang === 'en' ? 'Loading academic...' : 'समाचार लोड हो रहे हैं...'}
+                {lang === 'en' ? 'Loading news...' : 'समाचार लोड हो रहे हैं...'}
               </p>
             </div>
           </div>
@@ -178,11 +178,11 @@ export default function Academics() {
           <div className="bg-white rounded-xl border border-red-200 shadow-sm overflow-hidden">
             <div className="px-8 py-12 text-center">
               <p className="text-lg text-red-600 font-semibold mb-4">
-                {lang === 'en' ? 'Error Loading Academic' : 'समाचार लोड करने में त्रुटि'}
+                {lang === 'en' ? 'Error Loading News' : 'समाचार लोड करने में त्रुटि'}
               </p>
               <p className="text-gray-600 mb-6">{error}</p>
               <button
-                onClick={fetchAcademics}
+                onClick={fetchNewss}
                 className="bg-[#631012] hover:bg-[#7a1214] text-white px-6 py-2 rounded-lg transition-colors"
               >
                 {lang === 'en' ? 'Try Again' : 'पुनः प्रयास करें'}
@@ -194,14 +194,14 @@ export default function Academics() {
     );
   }
 
-  if (academics.length === 0) {
+  if (newss.length === 0) {
     return (
       <section className="w-full bg-gray-50 py-12 font-sans">
         <div className="w-full px-4 sm:px-6 lg:px-8">
           <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
             <div className="px-8 py-12 text-center">
               <p className="text-lg text-gray-600">
-                {lang === 'en' ? 'No academics available' : 'कोई समाचार उपलब्ध नहीं है'}
+                {lang === 'en' ? 'No newss available' : 'कोई समाचार उपलब्ध नहीं है'}
               </p>
             </div>
           </div>
@@ -222,7 +222,7 @@ export default function Academics() {
           <div className="px-8 py-6 border-b border-gray-100 flex justify-between items-center bg-white z-10">
             <div className="flex items-center gap-4">
               <h2 className="text-4xl font-bold text-[#631012] underline tracking-tight">
-                {isEn ? 'Latest Academic' : 'नवीनतम समाचार'}
+                {isEn ? 'Latest News' : 'नवीनतम समाचार'}
               </h2>
             </div>
 
@@ -237,7 +237,7 @@ export default function Academics() {
 
           {/* Single Column List (Flex-Col) */}
           <div className="flex flex-col h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
-            {academics.map((item) => {
+            {newss.map((item) => {
               const dateInfo = getFormattedDate(item.date);
 
               return (
@@ -281,7 +281,7 @@ export default function Academics() {
                   {/* Right Side: Arrow Action - Increased Size */}
                   <div className="flex-shrink-0 pl-4">
                     <button
-                      onClick={() => setSelectedAcademic(item)}
+                      onClick={() => setSelectedNews(item)}
                       className="w-12 h-12 rounded-full flex items-center justify-center text-gray-300 border border-transparent group-hover:bg-[#631012] group-hover:text-white group-hover:border-[#631012] transition-all duration-300 transform group-hover:translate-x-2 shadow-sm hover:scale-110"
                     >
                       <ArrowRight size={20} />
@@ -295,7 +295,7 @@ export default function Academics() {
       </div>
 
       {/* Full Page Modal */}
-      {selectedAcademic && (
+      {selectedNews && (
         <div
           className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 animate-fade-in"
           onClick={closeModal}
@@ -320,10 +320,10 @@ export default function Academics() {
                   {/* Date Box */}
                   <div className="flex flex-col items-center justify-center w-20 h-20 rounded-2xl bg-gray-50 border-2 border-gray-200 shadow-sm">
                     <span className="text-xs font-bold uppercase tracking-wider text-gray-500 opacity-70">
-                      {getFormattedDate(selectedAcademic.date).month}
+                      {getFormattedDate(selectedNews.date).month}
                     </span>
                     <span className="text-2xl font-extrabold text-[#631012]">
-                      {getFormattedDate(selectedAcademic.date).day}
+                      {getFormattedDate(selectedNews.date).day}
                     </span>
                   </div>
 
@@ -331,7 +331,7 @@ export default function Academics() {
                   <div className="flex flex-col gap-3">
                     <div className="flex items-center gap-3">
                       <span className="text-sm font-bold px-3 py-1.5 rounded-md border bg-gray-100 text-gray-600 border-gray-200">
-                        {isEn ? selectedAcademic.category_en : selectedAcademic.category_hi}
+                        {isEn ? selectedNews.category_en : selectedNews.category_hi}
                       </span>
                     </div>
                   </div>
@@ -341,11 +341,11 @@ export default function Academics() {
               {/* Main Content */}
               <div>
                 <h1 className="text-3xl sm:text-4xl font-bold text-[#171717] mb-4 leading-tight">
-                  {isEn ? selectedAcademic.title_en : selectedAcademic.title_hi}
+                  {isEn ? selectedNews.title_en : selectedNews.title_hi}
                 </h1>
 
                 <p className="text-lg text-gray-700 leading-relaxed mb-8">
-                  {isEn ? selectedAcademic.description_en : selectedAcademic.description_hi}
+                  {isEn ? selectedNews.description_en : selectedNews.description_hi}
                 </p>
 
                 {/* Additional Information Section */}
@@ -359,21 +359,21 @@ export default function Academics() {
                         {isEn ? 'Date' : 'तारीख'}:
                       </span>{' '}
                       {isEn
-                        ? formatDateForDisplayEn(selectedAcademic.date)
-                        : formatDateForDisplayHi(selectedAcademic.date)}
+                        ? formatDateForDisplayEn(selectedNews.date)
+                        : formatDateForDisplayHi(selectedNews.date)}
                     </p>
                     <p>
                       <span className="font-medium text-[#171717]">
                         {isEn ? 'Category' : 'श्रेणी'}:
                       </span>{' '}
-                      {isEn ? selectedAcademic.category_en : selectedAcademic.category_hi}
+                      {isEn ? selectedNews.category_en : selectedNews.category_hi}
                     </p>
-                    {selectedAcademic.created_at && (
+                    {selectedNews.created_at && (
                       <p>
                         <span className="font-medium text-[#171717]">
                           {isEn ? 'Posted' : 'पोस्ट किया गया'}:
                         </span>{' '}
-                        {new Date(selectedAcademic.created_at).toLocaleDateString(
+                        {new Date(selectedNews.created_at).toLocaleDateString(
                           isEn ? 'en-US' : 'hi-IN'
                         )}
                       </p>
