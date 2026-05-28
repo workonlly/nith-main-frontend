@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+
 import Image from 'next/image';
 
 interface GalleryImage {
@@ -29,6 +30,7 @@ interface GalleryData {
 }
 
 export default function Gallery() {
+
   const [selectedImage, setSelectedImage] =
     useState<GalleryImage | null>(null);
 
@@ -47,19 +49,21 @@ export default function Gallery() {
       images: [],
     });
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] =
+    useState(true);
 
-  /**
-   * =========================
-   * FETCH GALLERY DATA
-   * =========================
-   */
+  // =====================================================
+  // FETCH GALLERY
+  // =====================================================
 
   useEffect(() => {
+
     let mounted = true;
 
     async function fetchGallery() {
+
       try {
+
         setLoading(true);
 
         const res = await fetch(
@@ -68,17 +72,23 @@ export default function Gallery() {
 
         const json = await res.json();
 
-        if (mounted && json.success) {
+        if (
+          mounted &&
+          json.success
+        ) {
+
           setGalleryData(json.data);
         }
 
       } catch (err) {
+
         console.error(
           'Error fetching gallery:',
           err
         );
 
       } finally {
+
         setLoading(false);
       }
     }
@@ -88,18 +98,21 @@ export default function Gallery() {
     return () => {
       mounted = false;
     };
+
   }, []);
 
-  /**
-   * =========================
-   * LOADING STATE
-   * =========================
-   */
+  // =====================================================
+  // LOADING
+  // =====================================================
 
   if (loading) {
+
     return (
+
       <section className="py-16 px-6 bg-white">
+
         <div className="max-w-7xl mx-auto flex justify-center items-center h-64">
+
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#631012]" />
         </div>
       </section>
@@ -107,17 +120,15 @@ export default function Gallery() {
   }
 
   return (
+
     <section className="py-16 px-6 bg-white">
 
       <div className="max-w-7xl mx-auto">
 
-        {/* ========================= */}
         {/* HEADER */}
-        {/* ========================= */}
-
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-12">
 
-          {/* LEFT CONTENT */}
+          {/* LEFT */}
           <div>
 
             <h2 className="text-4xl font-bold text-[#631012] mb-3 border-b-4 border-[#631012] pb-2 inline-block">
@@ -166,19 +177,18 @@ export default function Gallery() {
           </div>
         </div>
 
-        {/* ========================= */}
         {/* GALLERY GRID */}
-        {/* ========================= */}
-
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
 
           {galleryData.images.map((image) => (
 
             <div
               key={image.id}
+
               onClick={() =>
                 setSelectedImage(image)
               }
+
               className="group relative overflow-hidden rounded-2xl border-2 border-gray-200 shadow-md hover:shadow-xl hover:border-[#631012] transition-all duration-300 cursor-pointer h-72 w-full"
             >
 
@@ -187,9 +197,11 @@ export default function Gallery() {
 
                 <Image
                   src={
-                    image.imageUrl ||
-                    '/placeholder.jpg'
+                    image.imageUrl
+                      ? image.imageUrl
+                      : '/placeholder.jpg'
                   }
+
                   alt={
                     language === 'en'
                       ? image.altText_en ||
@@ -199,7 +211,11 @@ export default function Gallery() {
                         image.title_hi ||
                         'गैलरी इमेज'
                   }
+
                   fill
+
+                  unoptimized
+
                   className="object-cover group-hover:scale-110 transition-transform duration-500"
                 />
               </div>
@@ -240,7 +256,8 @@ export default function Gallery() {
                     fill="currentColor"
                     viewBox="0 0 24 24"
                   >
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm-2-13h4v6h-4z" />
+
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2-13h4v6h-4z" />
                   </svg>
                 </div>
               </div>
@@ -248,14 +265,12 @@ export default function Gallery() {
           ))}
         </div>
 
-        {/* ========================= */}
         {/* MODAL */}
-        {/* ========================= */}
-
         {selectedImage && (
 
           <div
             className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+
             onClick={() =>
               setSelectedImage(null)
             }
@@ -263,19 +278,22 @@ export default function Gallery() {
 
             <div
               className="relative w-full max-w-4xl bg-white rounded-2xl overflow-hidden shadow-2xl"
+
               onClick={(e) =>
                 e.stopPropagation()
               }
             >
 
-              {/* MODAL IMAGE */}
+              {/* IMAGE */}
               <div className="relative w-full h-96">
 
                 <Image
                   src={
-                    selectedImage.imageUrl ||
-                    '/placeholder.jpg'
+                    selectedImage.imageUrl
+                      ? selectedImage.imageUrl
+                      : '/placeholder.jpg'
                   }
+
                   alt={
                     language === 'en'
                       ? selectedImage.altText_en ||
@@ -285,16 +303,21 @@ export default function Gallery() {
                         selectedImage.title_hi ||
                         'गैलरी इमेज'
                   }
+
                   fill
+
+                  unoptimized
+
                   className="object-cover"
                 />
               </div>
 
-              {/* CLOSE BUTTON */}
+              {/* CLOSE */}
               <button
                 onClick={() =>
                   setSelectedImage(null)
                 }
+
                 className="absolute top-4 right-4 w-10 h-10 rounded-full bg-[#631012] text-white flex items-center justify-center hover:bg-red-900 transition-colors shadow-lg"
               >
                 ✕

@@ -1,6 +1,10 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, {
+  useEffect,
+  useState,
+} from 'react';
+
 import Image from 'next/image';
 
 import {
@@ -11,6 +15,10 @@ import {
 import { RootState } from '../../store';
 
 import { toggleLanguage } from '../../redux/language_converter';
+
+// ======================================================
+// TYPES
+// ======================================================
 
 interface DirectorData {
   image: string;
@@ -34,43 +42,62 @@ interface DirectorData {
   message_hi: string;
 }
 
+// ======================================================
+// API BASE
+// ======================================================
+
+const API_BASE =
+  'http://localhost:4000';
+
+// ======================================================
+// COMPONENT
+// ======================================================
+
 export default function Director() {
-  // =========================
+
+  // ======================================================
   // REDUX
-  // =========================
+  // ======================================================
 
-  const dispatch = useDispatch();
+  const dispatch =
+    useDispatch();
 
-  const language = useSelector(
-    (state: RootState) => state.language.value
-  );
+  const language =
+    useSelector(
+      (
+        state: RootState
+      ) =>
+        state.language.value
+    );
 
-  // =========================
+  // ======================================================
   // STATE
-  // =========================
+  // ======================================================
 
-  const [directorData, setDirectorData] =
-    useState<DirectorData>({
-      image: '',
+  const [
+    directorData,
+    setDirectorData,
+  ] = useState<DirectorData>({
+    image: '',
 
-      label_en: '',
-      label_hi: '',
+    label_en: '',
+    label_hi: '',
 
-      heading_en: '',
-      heading_hi: '',
+    heading_en: '',
+    heading_hi: '',
 
-      name_en: '',
-      name_hi: '',
+    name_en: '',
+    name_hi: '',
 
-      designation_en: '',
-      designation_hi: '',
+    designation_en: '',
+    designation_hi: '',
 
-      institute_en: '',
-      institute_hi: '',
+    institute_en: '',
+    institute_hi: '',
 
-      message_en: '',
-      message_hi: '',
-    });
+    message_en: '',
+    message_hi: '',
+  });
 
   const [loading, setLoading] =
     useState(true);
@@ -78,26 +105,52 @@ export default function Director() {
   const [error, setError] =
     useState('');
 
-  // =========================
+  // ======================================================
   // FETCH DATA
-  // =========================
+  // ======================================================
 
   useEffect(() => {
+
     let mounted = true;
 
     async function fetchDirector() {
+
       try {
+
         setLoading(true);
 
-        const res = await fetch(
-          'http://localhost:4000/v1/homepage/director'
+        const res =
+          await fetch(
+            `${API_BASE}/v1/homepage/director`,
+            {
+              cache:
+                'no-store',
+            }
+          );
+
+        if (!res.ok) {
+          throw new Error(
+            'Failed to fetch director data'
+          );
+        }
+
+        const json =
+          await res.json();
+
+        console.log(
+          'Director API:',
+          json
         );
 
-        const json = await res.json();
+        if (
+          mounted &&
+          json.success
+        ) {
 
-        if (mounted && json.success) {
           setDirectorData({
-            image: json.data.image || '',
+
+            image:
+              json.data.image || '',
 
             label_en:
               json.data.label_en || '',
@@ -136,7 +189,9 @@ export default function Director() {
               json.data.message_hi || '',
           });
         }
+
       } catch (err) {
+
         console.error(
           'Error fetching director:',
           err
@@ -145,7 +200,9 @@ export default function Director() {
         setError(
           'Failed to fetch director data'
         );
+
       } finally {
+
         setLoading(false);
       }
     }
@@ -155,37 +212,46 @@ export default function Director() {
     return () => {
       mounted = false;
     };
+
   }, []);
 
-  // =========================
+  // ======================================================
   // LOADING
-  // =========================
+  // ======================================================
 
   if (loading) {
+
     return (
+
       <section className="py-20 flex justify-center items-center bg-white">
+
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#631012]" />
+
       </section>
     );
   }
 
-  // =========================
+  // ======================================================
   // ERROR
-  // =========================
+  // ======================================================
 
   if (error) {
+
     return (
+
       <section className="py-20 flex justify-center items-center bg-white">
+
         <p className="text-gray-600">
           {error}
         </p>
+
       </section>
     );
   }
 
-  // =========================
-  // LANGUAGE SWITCH DATA
-  // =========================
+  // ======================================================
+  // LANGUAGE DATA
+  // ======================================================
 
   const label =
     language === 'hi'
@@ -217,14 +283,16 @@ export default function Director() {
       ? directorData.message_hi
       : directorData.message_en;
 
-  // =========================
+  // ======================================================
   // UI
-  // =========================
+  // ======================================================
 
   return (
+
     <section className="relative px-4 md:px-8 bg-gradient-to-b from-white to-gray-50 overflow-hidden py-16">
 
       {/* BACKGROUND */}
+
       <div className="absolute top-0 right-0 w-1/3 h-full bg-[#631012]/5 skew-x-12 translate-x-20 pointer-events-none" />
 
       <div className="absolute top-10 left-10 w-32 h-32 bg-gray-200 rounded-full blur-3xl opacity-50 pointer-events-none" />
@@ -232,30 +300,41 @@ export default function Director() {
       <div className="max-w-7xl mx-auto relative z-10">
 
         {/* LANGUAGE TOGGLE */}
+
         <div className="flex justify-end mb-8">
 
           <button
             onClick={() =>
-              dispatch(toggleLanguage())
+              dispatch(
+                toggleLanguage()
+              )
             }
             className="bg-[#631012] hover:bg-[#7a1214] text-white px-5 py-2 rounded-lg transition-all duration-300"
           >
-            {language === 'en'
+
+            {language ===
+            'en'
               ? 'हिंदी'
               : 'English'}
+
           </button>
 
         </div>
 
         {/* HEADER */}
+
         <div className="text-center mb-16">
 
           <span className="text-[#631012] font-bold tracking-widest uppercase text-sm">
+
             {label}
+
           </span>
 
           <h2 className="text-3xl md:text-5xl font-extrabold text-gray-900 mt-2">
+
             {heading}
+
           </h2>
 
           <div className="w-20 h-1.5 bg-[#631012] mx-auto mt-4 rounded-full" />
@@ -263,33 +342,36 @@ export default function Director() {
         </div>
 
         {/* CONTENT */}
+
         <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
 
           {/* IMAGE */}
+
           <div className="relative group shrink-0 w-full sm:w-80">
 
             <div className="relative w-full h-96 sm:h-[28rem] rounded-2xl overflow-hidden shadow-2xl border-4 border-white">
 
-              <Image
-                src={
-                  directorData.image ||
-                  '/direct.jpg'
-                }
-                alt={name}
-                width={320}
-                height={384}
-                className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110 brightness-100 group-hover:brightness-110"
-                priority
-              />
+              {directorData.image && (
+
+                <Image
+                  src={directorData.image}
+                  alt={name || 'Director'}
+                  fill
+                  unoptimized
+                  className="object-cover transition-all duration-700 group-hover:scale-110 brightness-100 group-hover:brightness-110"
+                  priority
+                />
+
+              )}
 
             </div>
 
           </div>
 
           {/* TEXT */}
+
           <div className="relative flex-1 text-center lg:text-left mt-12 lg:mt-0">
 
-            {/* MESSAGE */}
             <blockquote className="text-lg md:text-2xl leading-relaxed md:leading-9 text-gray-800 font-serif italic mb-8 relative z-10 tracking-wide">
 
               &ldquo;
@@ -298,29 +380,32 @@ export default function Director() {
 
             </blockquote>
 
-            {/* DIVIDER */}
             <div className="w-16 h-1 bg-gradient-to-r from-[#631012] to-[#631012]/40 mx-auto lg:mx-0 mb-6 rounded-full" />
 
-            {/* INFO */}
             <div className="flex flex-col items-center lg:items-start gap-2">
 
               <div className="space-y-1">
 
                 <h3 className="text-2xl md:text-3xl font-bold text-[#631012] leading-tight">
+
                   {name}
+
                 </h3>
 
                 <p className="text-sm md:text-base font-semibold text-gray-600 uppercase tracking-widest">
+
                   {designation}
+
                 </p>
 
               </div>
 
-              {/* INSTITUTE */}
               <div className="mt-4 pt-4 border-t-2 border-gray-300 w-full lg:w-auto">
 
                 <p className="text-xs text-gray-500 font-semibold tracking-wider uppercase">
+
                   {institute}
+
                 </p>
 
               </div>
@@ -332,6 +417,7 @@ export default function Director() {
         </div>
 
       </div>
+
     </section>
   );
 }
