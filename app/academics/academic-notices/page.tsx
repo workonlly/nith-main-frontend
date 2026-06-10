@@ -3,8 +3,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import Header31 from '@/app/components/header3';
-import Footer from '@/app/components/footer';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -21,7 +19,7 @@ type Notice = {
 export default function page() {
   return (
     <div className="min-h-screen bg-white">
-      <Header31 />
+      
 
       <div className="bg-gray-50 py-4 px-6 md:px-12 border-b border-gray-200">
         <div className="max-w-7xl mx-auto">
@@ -100,7 +98,7 @@ export default function page() {
         </div>
       </section>
 
-      <Footer />
+      
     </div>
   );
 }

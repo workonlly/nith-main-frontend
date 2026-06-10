@@ -16,7 +16,7 @@ const administrationData = [
     id: '01',
     category: 'Oversight',
     category2: 'पर्यवेक्षण', // Hindi Category
-    icon: BadgeCheck,
+   
     sections: [
       {
         title: 'Visitor',
@@ -46,7 +46,6 @@ const administrationData = [
     id: '02',
     category: 'Leadership',
     category2: 'नेतृत्व', // Hindi Category
-    icon: User,
     sections: [
       {
         title: 'Chairperson',
@@ -92,7 +91,6 @@ const administrationData = [
     id: '03',
     category: 'Executive',
     category2: 'कार्यकारी', // Hindi Category
-    icon: Building2,
     sections: [
       {
         title: 'Director',
@@ -137,7 +135,6 @@ const administrationData = [
     id: '04',
     category: 'Registry',
     category2: 'रजिस्ट्री', // Hindi Category (or 'कुलसचिव अनुभाग')
-    icon: Users,
     sections: [
       {
         title: 'Registrar',
@@ -185,10 +182,7 @@ function Administration() {
                   {column.id}
                 </span>
                 <div className="flex items-center gap-1 sm:gap-2 border-l-2 border-[#800000] pl-2 sm:pl-3">
-                  <column.icon
-                    size={14}
-                    className="text-gray-400 group-hover/header:text-gray-900 transition-colors sm:w-4 sm:h-4"
-                  />
+                  
                   <h3 className="text-[clamp(10px,2vw,14px)] font-bold uppercase tracking-wider text-gray-800">
                     {language == 'en' ? column.category : column.category2}
                   </h3>

@@ -1,8 +1,6 @@
 'use client';
 import React from 'react';
 import Link from 'next/link';
-import Header31 from '@/app/components/header3';
-import Footer from '@/app/components/footer';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import { useEffect } from 'react';
@@ -118,7 +116,7 @@ export default function Page() {
         </div>
       </section>
 
-      <Footer />
+      
     </div>
   );
 }

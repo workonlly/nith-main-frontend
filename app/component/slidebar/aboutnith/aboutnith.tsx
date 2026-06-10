@@ -15,7 +15,7 @@ const aboutData = [
     id: '01',
     category: 'Identity',
     category2: 'पहचान',
-    icon: Landmark,
+  
     links: [
       {
         title: 'History',
@@ -37,7 +37,6 @@ const aboutData = [
     id: '02',
     category: 'Strategy',
     category2: 'रणनीति',
-    icon: Target,
     links: [
       {
         title: 'Goals',
@@ -59,7 +58,6 @@ const aboutData = [
     id: '03',
     category: 'Location',
     category2: 'स्थान',
-    icon: MapPin,
     links: [
       {
         title: 'About the City',
@@ -94,10 +92,7 @@ function AboutNith() {
                   {column.id}
                 </span>
                 <div className="flex items-center gap-1 sm:gap-2 border-l-2 border-[#800000] pl-2 sm:pl-3">
-                  <column.icon
-                    size={14}
-                    className="text-gray-400 group-hover/header:text-gray-900 transition-colors sm:w-4 sm:h-4"
-                  />
+                  
                   <h3 className="text-[clamp(10px,2vw,14px)] font-bold uppercase tracking-wider text-gray-800">
                     {language == 'en' ? column.category : column.category2}
                   </h3>

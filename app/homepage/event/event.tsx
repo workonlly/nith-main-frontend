@@ -65,89 +65,71 @@ const announcements = [
 
 export default function Announcements() {
   return (
-    <section className="w-full bg-gray-50 py-12 font-sans">
-      {/* Container: Set to w-full to cover whole width */}
-      <div className="w-full px-4 sm:px-6 lg:px-8">
-        {/* The Card Container */}
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col w-full">
-          {/* Header */}
-          <div className="px-8 py-6 border-b border-gray-100 flex justify-between items-center bg-white z-10">
-            <div className="flex items-center gap-4">
-              <h2 className="text-4xl font-bold text-[#631012] underline tracking-tight">
-                Announcements
-              </h2>
-            </div>
-          </div>
-
-          {/* Single Column List (Flex-Col) */}
-          <div className="flex flex-col h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
-            {announcements.map((item) => (
-              <div
-                key={item.id}
-                // Added py-6 px-8 to increase the size of the bar
-                className={`group relative flex items-center justify-between py-6 px-8 border-b border-gray-100 hover:bg-[#631012]/5 transition-all duration-300 cursor-pointer ${item.highlight ? 'bg-red-50/40' : ''}`}
-              >
-                {/* Left Side: Icon & Date */}
-                <div className="flex items-start gap-6 flex-1">
-                  {/* Date Box: Increased size to w-16 h-16 */}
-                  <div className="hidden sm:flex flex-col items-center justify-center w-16 h-16 flex-shrink-0 rounded-2xl bg-gray-50 border border-gray-200 text-gray-500 group-hover:border-[#631012]/20 group-hover:text-[#631012] transition-colors shadow-sm">
-                    <span className="text-xs font-bold uppercase tracking-wider opacity-70">
-                      {item.date.split(' ')[0]}
-                    </span>
-                    <span className="text-xl font-extrabold">
-                      {item.date.split(' ')[1]}
-                    </span>
-                  </div>
-
-                  {/* Content */}
-                  <div className="flex flex-col justify-center gap-2 pr-6">
-                    <div className="flex items-center gap-3">
-                      {/* Tag */}
-                      <span
-                        className={`text-xs font-bold px-2.5 py-1 rounded-md border tracking-wide ${
-                          item.highlight
-                            ? 'bg-red-100 text-red-700 border-red-200'
-                            : 'bg-gray-100 text-gray-600 border-gray-200 group-hover:bg-white'
-                        }`}
-                      >
-                        {item.type}
-                      </span>
-
-                      {/* New Badge */}
-                      {item.isNew && (
-                        <span className="flex items-center gap-1.5 text-xs font-bold text-red-600 animate-pulse">
-                          <span className="w-2 h-2 rounded-full bg-red-600"></span>
-                          NEW
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Text: Increased to text-lg */}
-                    <p
-                      className={`text-lg font-medium leading-relaxed transition-colors ${
-                        item.highlight
-                          ? 'text-[#631012]'
-                          : 'text-gray-700 group-hover:text-black'
-                      }`}
-                    >
-                      {item.text}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Right Side: Arrow Action - Increased Size */}
-                <div className="flex-shrink-0 pl-4">
-                  <div className="w-12 h-12 rounded-full flex items-center justify-center text-gray-300 border border-transparent group-hover:bg-[#631012] group-hover:text-white group-hover:border-[#631012] transition-all duration-300 transform group-hover:translate-x-2 shadow-sm">
-                    <ArrowRight size={20} />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+    <div className="bg-white rounded-sm border border-gray-200 shadow-sm overflow-hidden flex flex-col w-full h-full">
+      <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-white z-10">
+        <div className="flex items-center gap-3">
+          <h2 className="text-xl md:text-2xl font-bold text-[#631012] tracking-tight">
+            Announcements
+          </h2>
         </div>
       </div>
 
-      {/* Styles for the custom scrollbar */}
+      <div className="flex flex-col h-[400px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
+        {announcements.map((item) => (
+          <div
+            key={item.id}
+            className={`group relative flex items-center justify-between py-4 px-6 border-b border-gray-50 hover:bg-[#631012]/5 transition-all duration-300 cursor-pointer ${item.highlight ? 'bg-red-50/40' : ''}`}
+          >
+            <div className="flex items-start gap-4 flex-1">
+              <div className="hidden sm:flex flex-col items-center justify-center w-12 h-12 flex-shrink-0 rounded-sm bg-gray-50 border border-gray-200 text-gray-500 group-hover:border-[#631012]/30 group-hover:text-[#631012] transition-colors shadow-sm">
+                <span className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                  {item.date.split(' ')[0]}
+                </span>
+                <span className="text-lg font-extrabold leading-none">
+                  {item.date.split(' ')[1]}
+                </span>
+              </div>
+
+              <div className="flex flex-col justify-center gap-1.5 pr-4">
+                <div className="flex items-center gap-2">
+                  <span
+                    className={`text-[10px] font-bold px-2 py-0.5 rounded-sm border tracking-wide ${
+                      item.highlight
+                        ? 'bg-red-100 text-red-700 border-red-200'
+                        : 'bg-gray-100 text-gray-600 border-gray-200 group-hover:bg-white'
+                    }`}
+                  >
+                    {item.type}
+                  </span>
+                  {item.isNew && (
+                    <span className="flex items-center gap-1 text-[10px] font-bold text-red-600 animate-pulse">
+                      <span className="w-1.5 h-1.5 rounded-full bg-red-600"></span>
+                      NEW
+                    </span>
+                  )}
+                </div>
+
+                <p
+                  className={`text-sm font-medium leading-snug transition-colors ${
+                    item.highlight
+                      ? 'text-[#631012]'
+                      : 'text-gray-700 group-hover:text-black'
+                  }`}
+                >
+                  {item.text}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex-shrink-0 pl-2">
+              <div className="w-8 h-8 rounded-full flex items-center justify-center text-gray-300 border border-transparent group-hover:bg-[#631012] group-hover:text-white group-hover:border-[#631012] transition-all duration-300 transform group-hover:translate-x-1 shadow-sm">
+                <ArrowRight size={16} />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
       <style jsx global>{`
         .scrollbar-thin::-webkit-scrollbar {
           width: 6px;
@@ -157,12 +139,12 @@ export default function Announcements() {
         }
         .scrollbar-thin::-webkit-scrollbar-thumb {
           background-color: #e5e7eb;
-          border-radius: 20px;
+          border-radius: 4px;
         }
         .scrollbar-thin::-webkit-scrollbar-thumb:hover {
           background-color: #9ca3af;
         }
       `}</style>
-    </section>
+    </div>
   );
 }

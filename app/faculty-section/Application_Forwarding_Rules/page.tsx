@@ -4,8 +4,6 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
-import Header31 from '@/app/components/header3';
-import Footer from '@/app/components/footer';
 
 interface NewsItem {
   id: number;
@@ -127,7 +125,7 @@ export default function ForwardingRules() {
 
   return (
     <>
-      <Header31 />
+      
       <div className="min-h-screen bg-gray-50">
         {/* Breadcrumb */}
         <div className="bg-gray-50 py-4 px-6 md:px-12 border-b border-gray-200">
@@ -409,7 +407,7 @@ export default function ForwardingRules() {
           </div>
         </section>
       </div>
-      <Footer />
+      
     </>
   );
 }

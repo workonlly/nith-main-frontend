@@ -15,7 +15,6 @@ const facultyData = [
     id: '01',
     category: 'Administration',
     category2: 'प्रशासन', // Hindi Category
-    icon: Briefcase,
     links: [
       {
         title: 'Faculty Activities',
@@ -38,7 +37,6 @@ const facultyData = [
     id: '02',
     category: 'Allowances',
     category2: 'भत्ते', // Hindi Category
-    icon: Coins,
     links: [
       {
         title: 'CPDA Rules',
@@ -56,7 +54,6 @@ const facultyData = [
     id: '03',
     category: 'Service Rules',
     category2: 'सेवा नियम', // Hindi Category
-    icon: FileText,
     links: [
       {
         title: 'Application Forwarding',
@@ -87,10 +84,7 @@ function Faculty() {
                   {column.id}
                 </span>
                 <div className="flex items-center gap-1 sm:gap-2 border-l-2 border-[#800000] pl-2 sm:pl-3">
-                  <column.icon
-                    size={14}
-                    className="text-gray-400 group-hover/header:text-gray-900 transition-colors sm:w-4 sm:h-4"
-                  />
+                 
                   <h3 className="text-[clamp(10px,2vw,14px)] font-bold uppercase tracking-wider text-gray-800">
                     {language == 'en' ? column.category : column.category2}
                   </h3>

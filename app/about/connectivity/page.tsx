@@ -4,8 +4,6 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import Header31 from '../../components/header3';
-import Footer from '../../components/footer';
 import { getAboutNithData } from '../api/api';
 import { useEffect, useState } from 'react';
 
@@ -164,7 +162,7 @@ export default function ConnectivityPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Header31 />
+      
 
       <div className="bg-gray-50 py-4 px-6 md:px-12 border-b border-gray-200">
         <div className="max-w-7xl mx-auto">
@@ -493,7 +491,7 @@ export default function ConnectivityPage() {
         </div>
       </section>
 
-      <Footer />
+      
     </div>
   );
 }

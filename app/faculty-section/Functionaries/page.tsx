@@ -1,8 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Header31 from '@/app/components/header3';
-import Footer from '@/app/components/footer';
 
 const CATEGORIES = [
   'All Categories',
@@ -211,7 +209,7 @@ export default function FacultyRolesPage() {
 
   return (
     <>
-      <Header31 />
+      
 
       <main className="min-h-screen bg-[#f4f2f1] px-8 py-10 text-[13px] text-gray-800">
         {/* Header */}
@@ -272,7 +270,7 @@ export default function FacultyRolesPage() {
         ))}
       </main>
 
-      <Footer />
+      
     </>
   );
 }

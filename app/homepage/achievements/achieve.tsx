@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 
 interface Achievement {
@@ -53,15 +53,24 @@ const mockAchievements: Achievement[] = [
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
+  {
+    id: 4,
+    tagline: 'Global Alumni',
+    Heading: 'Alumni Network Across the Globe',
+    description:
+      'A strong network of successful alumni holding key positions in leading multinational corporations.',
+    image: '/group.jpg',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
 ];
 
 function Achieve() {
-  const [achievements, setAchievements] = useState<TransformedAchievement[]>(
-    []
-  );
+  const [achievements, setAchievements] = useState<TransformedAchievement[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
 
   // Transform database achievement to display format
   const transformAchievement = (
@@ -80,8 +89,7 @@ function Achieve() {
         setLoading(true);
         // Simulate API delay
         await new Promise((resolve) => setTimeout(resolve, 300));
-        const transformedAchievements =
-          mockAchievements.map(transformAchievement);
+        const transformedAchievements = mockAchievements.map(transformAchievement);
         setAchievements(transformedAchievements);
         if (transformedAchievements.length > 0) {
           setSelectedIndex(0);
@@ -97,36 +105,50 @@ function Achieve() {
     fetchAchievements();
   }, []);
 
-  const handlePrev = () => {
+  const handlePrev = useCallback(() => {
     if (achievements.length === 0) return;
     setSelectedIndex(
       (prev) => (prev - 1 + achievements.length) % achievements.length
     );
-  };
+  }, [achievements.length]);
 
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     if (achievements.length === 0) return;
     setSelectedIndex((prev) => (prev + 1) % achievements.length);
-  };
+  }, [achievements.length]);
+
+  // Autoplay functionality
+  useEffect(() => {
+    if (achievements.length === 0 || isHovered) return;
+
+    const intervalId = setInterval(() => {
+      handleNext();
+    }, 3000); // Change slide every 3 seconds
+
+    return () => clearInterval(intervalId);
+  }, [achievements.length, isHovered, handleNext]);
 
   // Get visible cards for carousel
   const getVisibleCards = () => {
     if (achievements.length === 0) return [];
 
-    const result = [];
-    for (let i = -2; i <= 2; i++) {
-      const idx =
-        (selectedIndex + i + achievements.length) % achievements.length;
-      const achievement = achievements[idx];
-      if (achievement) {
-        result.push({
-          achievement,
-          index: idx,
-          offset: i,
-        });
+    return achievements.map((achievement, index) => {
+      let diff = index - selectedIndex;
+      const half = Math.floor(achievements.length / 2);
+
+      // Handle wrapping for infinite carousel
+      if (diff > half) {
+        diff -= achievements.length;
+      } else if (diff < -half) {
+        diff += achievements.length;
       }
-    }
-    return result;
+
+      return {
+        achievement,
+        index,
+        offset: diff,
+      };
+    });
   };
 
   const visibleCards = getVisibleCards();
@@ -180,123 +202,134 @@ function Achieve() {
   }
 
   return (
-    <section className="py-16 px-6 bg-white">
-      <div className="max-w-7xl mx-auto">
-        <h2 className="text-4xl font-bold text-[#631012] mb-12 border-b-4 border-[#631012] pb-2 inline-block">
-          Achievements
-        </h2>
+    <div 
+      className="w-full py-12 px-2 sm:px-6 bg-white"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <h2 className="text-2xl md:text-4xl font-bold text-[#631012] tracking-tight ">
+        Achievements
+      </h2>
 
-        {/* Carousel with navigation buttons */}
-        <div className="flex items-center gap-8">
-          {/* Left navigation button */}
-          <button
-            onClick={handlePrev}
-            className="flex-shrink-0 w-12 h-12 rounded-full bg-[#631012] text-white font-bold text-xl hover:bg-red-900 transition-all duration-300 flex items-center justify-center shadow-lg hover:shadow-xl transform hover:scale-110"
-          >
-            ←
-          </button>
+      {/* Carousel with navigation buttons */}
+      <div className="flex items-center justify-between w-full max-w-7xl mx-auto">
+        {/* Left navigation button */}
+        <button
+          onClick={handlePrev}
+          className="flex-shrink-0 w-12 h-12 rounded-full border border-gray-200 bg-white text-gray-400 hover:text-white hover:bg-[#631012] hover:border-[#631012] transition-all duration-300 flex items-center justify-center shadow-sm hover:shadow-md transform hover:-translate-x-1 z-50 focus:outline-none"
+          aria-label="Previous Achievement"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
 
-          {/* Carousel container */}
-          <div className="flex-1 overflow-hidden">
-            <div className="relative h-100 flex items-center justify-center">
-              {/* Scrollable cards container */}
-              <div className="relative w-full h-full flex items-center justify-center perspective">
-                {visibleCards.map(({ achievement, index, offset }) => {
-                  // Safety check to ensure achievement exists
-                  if (!achievement) return null;
+        {/* Carousel container */}
+        <div className="flex-1 overflow-hidden relative h-[480px]">
+          <div className="relative w-full h-full flex items-center justify-center perspective-1000">
+            {visibleCards.map(({ achievement, index, offset }) => {
+              // Safety check to ensure achievement exists
+              if (!achievement) return null;
 
-                  const isCenter = offset === 0;
-                  let scale = 0.7;
-                  let opacity = 0.4;
-                  let zIndex = 10 + offset;
+              const isCenter = offset === 0;
+              let scale = 0.75;
+              let opacity = 0.3;
+              let zIndex = 10 + Math.abs(offset) * -1; // Center is highest z-index
 
-                  if (offset === -1 || offset === 1) {
-                    scale = 0.85;
-                    opacity = 0.7;
-                    zIndex = 20;
-                  } else if (isCenter) {
-                    scale = 1;
-                    opacity = 1;
-                    zIndex = 30;
-                  }
+              if (offset === -1 || offset === 1) {
+                scale = 0.88;
+                opacity = 0.6;
+                zIndex = 20;
+              } else if (isCenter) {
+                scale = 1;
+                opacity = 1;
+                zIndex = 30;
+              }
 
-                  return (
-                    <div
-                      key={`${achievement.id}-${offset}-${index}`}
-                      onClick={() => setSelectedIndex(index)}
-                      className="absolute cursor-pointer transition-all duration-500 ease-out"
-                      style={{
-                        transform: `translateX(${offset * 280}px) scale(${scale})`,
-                        opacity: opacity,
-                        zIndex: zIndex,
-                      }}
-                    >
-                      {/* Card */}
-                      <div
-                        className={`w-72 bg-white rounded-xl overflow-hidden border-2 transition-all duration-300 ${
-                          isCenter
-                            ? 'border-[#631012] shadow-xl'
-                            : 'border-gray-200 shadow-md hover:shadow-lg'
-                        }`}
-                      >
-                        {/* Image */}
-                        <div className="relative h-48 overflow-hidden bg-gray-100">
-                          <Image
-                            src={achievement.image || '/placeholder.jpg'}
-                            alt={achievement.title || 'Achievement'}
-                            fill
-                            className="object-cover hover:scale-110 transition-transform duration-500"
-                          />
-                        </div>
-
-                        {/* Content */}
-                        <div className="p-6">
-                          {/* Category badge */}
-                          <div className="mb-3">
-                            <span className="inline-block px-3 py-1 bg-[#631012]/10 text-[#631012] text-xs font-bold rounded-full border border-[#631012]/30">
-                              {achievement.category || 'General'}
-                            </span>
-                          </div>
-
-                          {/* Title */}
-                          <h3 className="text-lg font-bold text-[#631012] mb-3 line-clamp-2">
-                            {achievement.title || 'Untitled Achievement'}
-                          </h3>
-
-                          {/* Description */}
-                          <p className="text-gray-700 text-sm leading-relaxed line-clamp-2">
-                            {achievement.description ||
-                              'No description available'}
-                          </p>
-                        </div>
-                      </div>
+              return (
+                <div
+                  key={achievement.id}
+                  onClick={() => setSelectedIndex(index)}
+                  className={`absolute transition-all duration-700 ease-in-out ${isCenter ? 'cursor-default' : 'cursor-pointer'}`}
+                  style={{
+                    transform: `translateX(${offset * 320}px) scale(${scale})`,
+                    opacity: opacity,
+                    zIndex: zIndex,
+                  }}
+                >
+                  {/* Card */}
+                  <div
+                    className={`w-[340px] bg-white rounded-sm overflow-hidden transition-all duration-700 ${
+                      isCenter
+                        ? 'shadow-[0_20px_50px_-12px_rgba(99,16,18,0.15)] border border-transparent'
+                        : 'shadow-sm border border-gray-100'
+                    }`}
+                  >
+                    {/* Image */}
+                    <div className="relative h-52 overflow-hidden bg-gray-100 group">
+                      <Image
+                        src={achievement.image || '/placeholder.jpg'}
+                        alt={achievement.title || 'Achievement'}
+                        fill
+                        className={`object-cover transition-transform duration-1000 ${isCenter ? 'scale-105' : 'grayscale-[40%] group-hover:grayscale-0'}`}
+                      />
+                      {/* Elegant Overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60"></div>
                     </div>
-                  );
-                })}
-              </div>
-            </div>
+
+                    {/* Content */}
+                    <div className="p-7 relative bg-white">
+                      {/* Category badge */}
+                      <div className="absolute -top-4 right-6">
+                        <span className="inline-block px-4 py-1.5 bg-white text-[#631012] text-[10px] uppercase tracking-widest font-bold rounded-sm shadow-md border border-gray-50">
+                          {achievement.category || 'General'}
+                        </span>
+                      </div>
+
+                      {/* Title */}
+                      <h3 className={`font-bold mb-3 line-clamp-2 transition-colors duration-300 ${isCenter ? 'text-gray-900 text-xl' : 'text-gray-600 text-lg'}`}>
+                        {achievement.title || 'Untitled Achievement'}
+                      </h3>
+
+                      {/* Description */}
+                      <p className="text-gray-500 text-sm leading-relaxed line-clamp-3 font-medium">
+                        {achievement.description || 'No description available'}
+                      </p>
+                      
+                      {/* Divider for active card */}
+                      <div className={`h-0.5 bg-gray-100 mt-5 transition-all duration-500 ${isCenter ? 'w-full opacity-100' : 'w-0 opacity-0'}`}></div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
-
-          {/* Right navigation button */}
-          <button
-            onClick={handleNext}
-            className="flex-shrink-0 w-12 h-12 rounded-full bg-[#631012] text-white font-bold text-xl hover:bg-red-900 transition-all duration-300 flex items-center justify-center shadow-lg hover:shadow-xl transform hover:scale-110"
-          >
-            →
-          </button>
         </div>
 
-        {/* Counter */}
-        <div className="flex justify-center mt-8">
-          <p className="text-gray-600 font-semibold text-sm">
-            <span className="text-[#631012] font-bold">
-              {achievements.length > 0 ? selectedIndex + 1 : 0}
-            </span>{' '}
-            / {achievements.length}
-          </p>
-        </div>
+        {/* Right navigation button */}
+        <button
+          onClick={handleNext}
+          className="flex-shrink-0 w-12 h-12 rounded-full border border-gray-200 bg-white text-gray-400 hover:text-white hover:bg-[#631012] hover:border-[#631012] transition-all duration-300 flex items-center justify-center shadow-sm hover:shadow-md transform hover:translate-x-1 z-50 focus:outline-none"
+          aria-label="Next Achievement"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
       </div>
-    </section>
+
+      {/* Pagination Indicators */}
+      <div className="flex justify-center mt-6 gap-2">
+        {achievements.map((_, idx) => (
+          <button
+            key={idx}
+            onClick={() => setSelectedIndex(idx)}
+            className={`transition-all duration-300 rounded-full ${
+              selectedIndex === idx 
+                ? 'w-8 h-1.5 bg-[#631012]' 
+                : 'w-2 h-1.5 bg-gray-300 hover:bg-gray-400'
+            }`}
+            aria-label={`Go to slide ${idx + 1}`}
+          />
+        ))}
+      </div>
+    </div>
   );
 }
 

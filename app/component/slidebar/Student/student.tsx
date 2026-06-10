@@ -20,7 +20,6 @@ const studentData = [
     id: '01',
     category: 'Campus Life',
     category2: 'परिसर जीवन', // Hindi Category
-    icon: Smile,
     sections: [
       {
         title: 'Essentials',
@@ -51,7 +50,6 @@ const studentData = [
       {
         title: 'Accommodation',
         title2: 'आवास', // Hindi Section Title
-        icon: Tent,
         links: [
           {
             title: 'Hostels at NITH',
@@ -76,7 +74,6 @@ const studentData = [
     id: '02',
     category: 'Extracurriculars',
     category2: 'पाठ्येतर गतिविधियां', // Hindi Category
-    icon: Trophy,
     sections: [
       {
         title: 'Cultural',
@@ -103,7 +100,6 @@ const studentData = [
       {
         title: 'Technical',
         title2: 'तकनीकी', // Hindi Section Title
-        icon: Cpu,
         links: [
           {
             title: 'Clubs/Socities List',
@@ -175,7 +171,6 @@ const studentData = [
     id: '03',
     category: 'Conduct',
     category2: 'आचरण', // Hindi Category
-    icon: Scale,
     sections: [
       {
         title: 'Discipline',
@@ -247,7 +242,6 @@ const studentData = [
     id: '04',
     category: 'Welfare',
     category2: 'कल्याण', // Hindi Category
-    icon: HandCoins,
     sections: [
       {
         title: 'Benefits',
@@ -289,10 +283,6 @@ const Student = () => {
                   {column.id}
                 </span>
                 <div className="flex items-center gap-1 sm:gap-2 border-l-2 border-[#800000] pl-2 sm:pl-3">
-                  <column.icon
-                    size={14}
-                    className="text-gray-400 group-hover/header:text-gray-900 transition-colors sm:w-4 sm:h-4"
-                  />
                   <h3 className="text-[clamp(10px,2vw,14px)] font-bold uppercase tracking-wider text-gray-800">
                     {language == 'en' ? column.category : column.category2}
                   </h3>

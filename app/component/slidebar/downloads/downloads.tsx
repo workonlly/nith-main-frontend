@@ -16,7 +16,6 @@ const downloadsData = [
     id: '01',
     category: 'Students',
     category2: 'छात्र', // Hindi Category
-    icon: GraduationCap,
     links: [
       {
         title: 'Browse Student Downloads',
@@ -31,7 +30,6 @@ const downloadsData = [
     id: '02',
     category: 'Faculty & Staff',
     category2: 'संकाय एवं कर्मचारी', // Hindi Category
-    icon: Users,
     links: [
       {
         title: 'Browse Faculty Downloads',
@@ -46,7 +44,6 @@ const downloadsData = [
     id: '03',
     category: 'General',
     category2: 'सामान्य', // Hindi Category
-    icon: FolderOpen,
     links: [
       {
         title: 'Miscellaneous Downloads',
@@ -74,10 +71,6 @@ const Downloads = () => {
                   {column.id}
                 </span>
                 <div className="flex items-center gap-1 sm:gap-2 border-l-2 border-[#800000] pl-2 sm:pl-3">
-                  <column.icon
-                    size={14}
-                    className="text-gray-400 group-hover/header:text-gray-900 transition-colors sm:w-4 sm:h-4"
-                  />
                   <h3 className="text-[clamp(10px,2vw,14px)] font-bold uppercase tracking-wider text-gray-800">
                     {language == 'en' ? column.category : column.category2}
                   </h3>

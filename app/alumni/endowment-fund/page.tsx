@@ -3,8 +3,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import Header31 from '@/app/components/header3';
-import Footer from '@/app/components/footer';
 
 interface Initiative {
   id: number;
@@ -222,7 +220,7 @@ export default function EndowmentFundGeneration() {
 
   return (
     <>
-      <Header31 />
+      
       <div className="min-h-screen bg-gray-50">
         {/* Breadcrumb */}
         <div className="bg-gray-50 py-4 px-6 md:px-12 border-b border-gray-200">
@@ -797,7 +795,7 @@ export default function EndowmentFundGeneration() {
           </div>
         </section>
       </div>
-      <Footer />
+      
     </>
   );
 }

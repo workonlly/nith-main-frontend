@@ -3,8 +3,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import Header31 from '@/app/components/header3';
-import Footer from '@/app/components/footer';
 import { FileText, Calendar, Download, Mail } from 'lucide-react';
 
 const fadeUp = {
@@ -54,7 +52,7 @@ const ARCHIVE = Array.from({ length: 12 }).map((_, i) => ({
 export default function NewsBulletinPage() {
   return (
     <div className="min-h-screen bg-white">
-      <Header31 />
+      
 
       <div className="bg-gray-50 py-4 px-6 md:px-12 border-b border-gray-200">
         <div className="max-w-7xl mx-auto">
@@ -266,7 +264,7 @@ export default function NewsBulletinPage() {
         </section>
       </main>
 
-      <Footer />
+      
     </div>
   );
 }

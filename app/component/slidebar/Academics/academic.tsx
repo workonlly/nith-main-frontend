@@ -16,7 +16,6 @@ const academicData = [
     id: '01',
     category: 'General Affairs',
     category2: 'सामान्य मामले', // Hindi Category
-    icon: CalendarDays,
     sections: [
       {
         title: 'Resources',
@@ -81,7 +80,6 @@ const academicData = [
     id: '02',
     category: 'Lifecycle',
     category2: 'जीवनचक्र', // Hindi Category
-    icon: GraduationCap,
     sections: [
       {
         title: 'Admissions & Registrations',
@@ -157,7 +155,6 @@ const academicData = [
     id: '03',
     category: 'Programmes',
     category2: 'कार्यक्रम', // Hindi Category
-    icon: BookOpen,
     sections: [
       {
         title: 'Bachelor (UG)',
@@ -236,10 +233,7 @@ function Academic() {
                   {column.id}
                 </span>
                 <div className="flex items-center gap-1 sm:gap-2 border-l-2 border-[#800000] pl-2 sm:pl-3">
-                  <column.icon
-                    size={14}
-                    className="text-gray-400 group-hover/header:text-gray-900 transition-colors sm:w-4 sm:h-4"
-                  />
+                  
                   <h3 className="text-[clamp(10px,2vw,14px)] font-bold uppercase tracking-wider text-gray-800">
                     {language == 'en' ? column.category : column.category2}
                   </h3>

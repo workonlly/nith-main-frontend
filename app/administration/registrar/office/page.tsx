@@ -3,8 +3,6 @@
 import React from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import Header31 from '@/app/components/header3';
-import Footer from '@/app/components/footer';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -113,7 +111,7 @@ function TableSection({ title, rows }: { title: string; rows: Row[] }) {
 export default function RegistrarOfficePage() {
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header31 />
+      
 
       {/* Breadcrumbs */}
       <div className="bg-gray-50 py-4 px-6 md:px-12 border-b border-gray-200">
@@ -169,7 +167,7 @@ export default function RegistrarOfficePage() {
         <TableSection title="Office Staff" rows={officeStaffRows} />
       </main>
 
-      <Footer />
+      
     </div>
   );
 }

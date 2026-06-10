@@ -9,7 +9,6 @@ const departmentData = [
     id: '01',
     category: 'Engineering',
     category2: 'अभियांत्रिकी', // Hindi Category
-    icon: Cpu,
     sections: [
       {
         title: 'B.Tech / M.Tech',
@@ -58,7 +57,6 @@ const departmentData = [
     id: '02',
     category: 'Sciences',
     category2: 'विज्ञान', // Hindi Category
-    icon: Atom,
     sections: [
       {
         title: 'Pure Sciences',
@@ -98,7 +96,6 @@ const departmentData = [
     id: '03',
     category: 'Liberal Arts',
     category2: 'उदार कला', // Hindi Category
-    icon: Library,
     sections: [
       {
         title: 'Professional Schools',
@@ -146,10 +143,6 @@ function Department() {
                   {column.id}
                 </span>
                 <div className="flex items-center gap-1 sm:gap-2 border-l-2 border-[#800000] pl-2 sm:pl-3">
-                  <column.icon
-                    size={14}
-                    className="text-gray-400 group-hover/header:text-gray-900 transition-colors sm:w-4 sm:h-4"
-                  />
                   <h3 className="text-[clamp(10px,2vw,14px)] font-bold uppercase tracking-wider text-gray-800">
                     {language == 'en' ? column.category : column.category2}
                   </h3>

@@ -4,8 +4,6 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image'; // Added Image component usage for better performance
-import Header31 from '@/app/components/header3';
-import Footer from '@/app/components/footer';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
 
@@ -155,7 +153,7 @@ export default function Downloads() {
 
   return (
     <>
-      <Header31 />
+      
       <div className="min-h-screen bg-gray-50">
         {/* Breadcrumb */}
         <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
@@ -236,7 +234,7 @@ export default function Downloads() {
           </div>
         </section>
       </div>
-      <Footer />
+      
     </>
   );
 }
