@@ -2,52 +2,40 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import Header31 from '@/app/components/header3';
+import Footer from '@/app/components/footer';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
   visible: { opacity: 1, y: 0 },
 };
 
-const director = [
-  {
-    name: 'Prof. Hiralal Murlidhar Suryawanshi',
-    designation: 'Director',
-    phone: '222308, 254001',
-    email: 'director@nith.ac.in',
-  },
-];
-
-const officeStaff = [
-  {
-    name: 'Ms. Sangeeta Anand (on Deputation)',
-    designation: 'Stenographer SG-II (Private Secretary)',
-    phone: '254001, 222308',
-    email: 'psd@nith.ac.in',
-  },
-  {
-    name: 'Sh. Vikas Dogra',
-    designation: 'Assistant SG-II(PA)',
-    phone: '254001, 222308',
-    email: 'vikasdogra@nith.ac.in',
-  },
-  {
-    name: 'Sh. Ramesh Chand-I',
-    designation: 'Sr. Office Attendant SG-I',
-    phone: '254001, 222308',
-    email: '--',
-  },
-  {
-    name: 'Ms. Smriti',
-    designation: 'Senior Technician',
-    phone: '--',
-    email: '--',
-  },
-];
+import { useState, useEffect } from 'react';
 
 export default function DirectorOfficePage() {
+  const [staffList, setStaffList] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('http://localhost:5000/api/v1/administration/office-staff')
+      .then(res => res.json())
+      .then(json => {
+        if (json.success) setStaffList(json.data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error(err);
+        setLoading(false);
+      });
+  }, []);
+
+  const director = staffList.filter(s => s.is_director);
+  const officeStaff = staffList.filter(s => !s.is_director);
+
+  if (loading) return <div className="min-h-screen flex items-center justify-center text-black font-bold">Loading...</div>;
   return (
     <div className="min-h-screen bg-white">
-      
+      <Header31 />
 
       <div className="bg-gray-50 py-4 px-6 md:px-12 border-b border-gray-200">
         <div className="max-w-7xl mx-auto">
@@ -169,7 +157,7 @@ export default function DirectorOfficePage() {
         </div>
       </section>
 
-      
+      <Footer />
     </div>
   );
 }

@@ -1,9 +1,10 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { facultyIncharges, FacultyInchargeEntry } from './data';
+import Header31 from '@/app/components/header3';
+import Footer from '@/app/components/footer';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -18,7 +19,7 @@ function FIHeader() {
   );
 }
 
-function FITable({ rows }: { rows: FacultyInchargeEntry[] }) {
+function FITable({ rows }: { rows: any[] }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -40,12 +41,12 @@ function FITable({ rows }: { rows: FacultyInchargeEntry[] }) {
             </tr>
           </thead>
           <tbody>
-            {rows.map((row) => (
+            {rows.map((row, i) => (
               <tr
-                key={row.sn}
+                key={row.id || i}
                 className="border-b border-gray-200 hover:bg-gray-50 transition-colors"
               >
-                <td className="px-6 py-4 text-sm text-gray-900">{row.sn}</td>
+                <td className="px-6 py-4 text-sm text-gray-900">{i + 1}</td>
                 <td className="px-6 py-4 text-sm text-gray-800 font-medium">
                   {row.name}
                 </td>
@@ -73,9 +74,27 @@ function FITable({ rows }: { rows: FacultyInchargeEntry[] }) {
 }
 
 export default function FacultyInchargesPage() {
+  const [list, setList] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('http://localhost:5000/api/v1/administration/faculty-incharges')
+      .then(res => res.json())
+      .then(json => {
+        if (json.success) setList(json.data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error(err);
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) return <div className="min-h-screen flex items-center justify-center text-black font-bold">Loading...</div>;
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      
+    <div className="min-h-screen bg-gray-50 text-black">
+      <Header31 />
 
       <div className="bg-gray-50 py-4 px-6 md:px-12 border-b border-gray-200">
         <div className="max-w-7xl mx-auto">
@@ -120,10 +139,10 @@ export default function FacultyInchargesPage() {
 
       <main className="max-w-7xl mx-auto px-4 md:px-6 py-12 md:py-16">
         <FIHeader />
-        <FITable rows={facultyIncharges} />
+        <FITable rows={list} />
       </main>
 
-      
+      <Footer />
     </div>
   );
 }
