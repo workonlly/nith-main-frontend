@@ -110,7 +110,7 @@ function Authorities() {
                             className="text-gray-400 group-hover/link:text-[#800000] transition-colors sm:w-3.5 sm:h-3.5"
                           />
 
-                          <span className="text-[clamp(9px,1.8vw,12px)] font-medium text-gray-600 group-hover/link:text-black group-hover/link:translate-x-1 transition-all duration-300">
+                          <span className="block text-[clamp(11px,2vw,14px)] font-medium text-gray-600 group-hover/link:text-black group-hover/link:translate-x-1 transition-all duration-300">
                             {language == 'en' ? link.title : link.title2}
                           </span>
                         </div>

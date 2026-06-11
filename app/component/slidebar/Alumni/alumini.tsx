@@ -154,7 +154,7 @@ function Alumni() {
                             />
                           )}
 
-                          <span className="text-[clamp(10px,2vw,14px)] font-medium text-gray-600 group-hover/link:text-black transition-colors">
+                          <span className="block text-[clamp(11px,2vw,14px)] font-medium text-gray-600 group-hover/link:text-black transition-colors">
                             {language == 'en' ? link.title : link.title2}
                           </span>
                         </div>

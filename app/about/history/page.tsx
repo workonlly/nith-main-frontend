@@ -1,118 +1,202 @@
 'use client';
-import React from 'react';
-import { motion } from 'framer-motion';
-import Link from 'next/link';
+
+import React, { useEffect, useState, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
-import { getAboutNithData } from '../api/api';
-import { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
+import Link from 'next/link';
+import { MapPin, Mountain, Route } from 'lucide-react';
+
+
+import {
+  getAboutCityMain,
+  getAboutCityInfoCards,
+  getAboutCityDescriptions,
+  AboutCityMainRaw,
+  AboutCityInfoCardRaw,
+  AboutCityDescriptionRaw
+} from '../api/api';
 
 const fadeUp = {
-  hidden: {
-    opacity: 0,
-    y: 40,
-  },
-  visible: {
-    opacity: 1,
-    y: 0,
-  },
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0 },
 };
 
-const fadeInLeft = {
-  hidden: {
-    opacity: 0,
-    x: -50,
-  },
-  visible: {
-    opacity: 1,
-    x: 0,
-  },
+const fadeInScale = {
+  hidden: { opacity: 0, scale: 0.9 },
+  visible: { opacity: 1, scale: 1 },
 };
 
-const fadeInRight = {
-  hidden: {
-    opacity: 0,
-    x: 50,
-  },
-  visible: {
-    opacity: 1,
-    x: 0,
-  },
-};
-
-interface TimelineEvent {
-  year: string;
-  date: string;
+interface CityInfoCard {
+  icon: React.ComponentType<{ className?: string }>;
   title: string;
-  description: string;
+  subtitle: string;
 }
 
-const timelineEvents: TimelineEvent[] = [
-  {
-    year: '1986',
-    date: '7 August 1986',
-    title: 'Establishment',
-    description:
-      'Regional Engineering College, Hamirpur founded with two departments (Civil & Electrical Engineering) with an intake of 30 students in each.',
-  },
-  {
-    year: '2002',
-    date: '26 June 2002',
-    title: 'Upgradation to NIT',
-    description:
-      'REC Hamirpur was awarded the status of Deemed University and upgraded to National Institute of Technology.',
-  },
-  {
-    year: '2007',
-    date: '5 June 2007',
-    title: 'National Importance Status',
-    description:
-      'NIT Hamirpur was recognized as an Institute of National Importance under the National Institutes of Technology Act, 2007.',
-  },
-  {
-    year: '2007',
-    date: '15 August 2007',
-    title: 'Act Enforced',
-    description:
-      'The NIT Act provisions came into effect on 15 August 2007 via notification S.O. 1384(E) by the MHRD.',
-  },
-];
+// Icon dictionary to retain specific aesthetic layouts for dynamic data records
+const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+  location: MapPin,
+  altitude: Mountain,
+  connectivity: Route,
+  स्थान: MapPin,
+  ऊंचाई: Mountain,
+  संयोजकता: Route
+};
 
-export default function HistoryPage() {
+// ======================================================
+// STATIC HARDCODED FALLBACK RECORDS
+// ======================================================
+const fallbackCityData = {
+  en: {
+    heading: 'About Hamirpur',
+    introduction: 'Set in the peaceful hills of Himachal Pradesh, Hamirpur offers a clean, calm, and welcoming environment for all who visit NIT Hamirpur. With its friendly community and natural beauty, the city creates the perfect backdrop for learning, growth, and new beginnings.',
+    overview_title: 'City Overview',
+    overview_subtitle: "Essential information about Hamirpur's location and characteristics",
+    infoCards: [
+      { icon: MapPin, title: 'Location', subtitle: 'Himachal Pradesh, India' },
+      { icon: Mountain, title: 'Altitude', subtitle: '785 metres' },
+      { icon: Route, title: 'Connectivity', subtitle: 'NH-3 & NH-103' }
+    ],
+    descriptions: [
+      'Hamirpur, the district headquarter, is situated at an altitude of 785 meters in the Himalayan State of Himachal Pradesh, India. Hamirpur is a clean and eco-friendly district and is famous for its high literacy rate.',
+      'Hamirpur City is surrounded by pine tree forest and has a good city infrastructure ranging from Quality Educational Institutions including NIT, State Universities and Skill Learning Centres.',
+      'During winter, the climate is cold but pleasant when woolens are required. During summer the maximum temperature is around 40 degrees Celsius and cottons are recommended.',
+      'It is a major junction on National Highway 3 while National Highway 103 starts from here. The bulk of the population speaks Hindi, with English widely understood.'
+    ]
+  },
+  hi: {
+    heading: 'हमीरपुर के बारे में',
+    introduction: 'हिमाचल प्रदेश की शांत पहाड़ियों में बसा हमीरपुर, एनआईटी हमीरपुर आने वाले सभी लोगों के लिए एक स्वच्छ, शांत और स्वागत योग्य वातावरण प्रदान करता है। अपने अनुकूल समुदाय और प्राकृतिक सुंदरता के साथ, शहर सीखने, विकास और नई शुरुआत के लिए आदर्श पृष्ठभूमि तैयार करता है।',
+    overview_title: 'शहर का अवलोकन',
+    overview_subtitle: 'हमीरपुर के स्थान और विशेषताओं के बारे में आवश्यक जानकारी',
+    infoCards: [
+      { icon: MapPin, title: 'स्थान', subtitle: 'हिमाचल प्रदेश, भारत' },
+      { icon: Mountain, title: 'ऊंचाई', subtitle: '785 मीटर' },
+      { icon: Route, title: 'संयोजकता', subtitle: 'NH-3 & NH-103' }
+    ],
+    descriptions: [
+      'हमीरपुर, जिला मुख्यालय, हिमाचल प्रदेश के हिमालयी राज्य में 785 मीटर की ऊंचाई पर स्थित है। हमीरपुर एक स्वच्छ और पर्यावरण के अनुकूल जिला है और अपनी उच्च साक्षरता दर के लिए प्रसिद्ध है।',
+      'हमीरपुर शहर देवदार के जंगल से घिरा हुआ है और NIT, राज्य विश्वविद्यालयों और कौशल सीखने के केंद्रों सहित गुणवत्ता वाली शैक्षणिक संस्थाओं की अच्छी शहरी बुनियादी ढांचे है।',
+      'सदियों में जलवायु ठंडी लेकिन सुखद होती है जब ऊनी कपड़ों की आवश्यकता होती है। गर्मी के दौरान अधिकतम तापमान लगभग 40 डिग्री सेल्सियस होता है और कपास की सिफारिश की जाती है।',
+      'यह राष्ट्रीय राजमार्ग 3 पर एक प्रमुख जंक्शन है जबकि राष्ट्रीय राजमार्ग 103 यहां से शुरू होता है। अधिकांश आबादी हिंदी बोलती है, अंग्रेजी व्यापक रूप से समझी जाती है।'
+    ]
+  }
+};
+
+export default function AboutCityPage() {
   const language = useSelector((state: RootState) => state.language.value);
-  const [connectivityData, setConnectivityData] = useState<Record<
-    string,
-    unknown
-  > | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  // Fetch data on component mount (ID 1 = History)
+  // Separate states for backend database collections
+  const [mainRaw, setMainRaw] = useState<AboutCityMainRaw | null>(null);
+  const [cardsRaw, setCardsRaw] = useState<AboutCityInfoCardRaw[]>([]);
+  const [descsRaw, setDescsRaw] = useState<AboutCityDescriptionRaw[]>([]);
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
-    async function fetchData() {
+    async function fetchAllCityData() {
       try {
         setLoading(true);
-        const response = await getAboutNithData(1);
-
-        if (response.success && response.data) {
-          setConnectivityData(response.data);
-        } else {
-          setError('History information not found');
-        }
+        // Execute parallel backend queries
+        const [mainRes, cardsRes, descsRes] = await Promise.all([
+          getAboutCityMain(),
+          getAboutCityInfoCards(),
+          getAboutCityDescriptions()
+        ]);
+        
+        if (mainRes) setMainRaw(mainRes);
+        if (cardsRes) setCardsRaw(cardsRes);
+        if (descsRes) setDescsRaw(descsRes);
       } catch (err) {
-        setError('Failed to load history data');
-        console.error('History fetch error:', err);
+        console.error('Failed to load dynamic backend city records, utilizing built-in fallbacks:', err);
       } finally {
         setLoading(false);
       }
     }
 
-    fetchData();
+    fetchAllCityData();
   }, []);
-  return (
-    <div className="min-h-screen bg-gray-50">
-      
 
+  // ======================================================
+  // INTERLOCKING BILINGUAL RESOLUTION LOGIC
+  // ======================================================
+  const computedData = useMemo(() => {
+    const fbEn = fallbackCityData.en;
+    const fbHi = fallbackCityData.hi;
+    const activeFallback = language === 'hi' ? fbHi : fbEn;
+
+    // Direct text evaluation across mutually exclusive columns
+    const getText = (
+      enVal: string | null | undefined, 
+      hiVal: string | null | undefined, 
+      fallbackDefault: string
+    ): string => {
+      if (language === 'hi') {
+        return hiVal || enVal || fallbackDefault;
+      }
+      return enVal || hiVal || fallbackDefault;
+    };
+
+    // 1. Resolve Heading, Introduction text, and Section Subtitles
+    const heading = mainRaw 
+      ? getText(mainRaw.heading_en, mainRaw.heading_hi, activeFallback.heading)
+      : activeFallback.heading;
+
+    const introduction = mainRaw
+      ? getText(mainRaw.introduction_en, mainRaw.introduction_hi, activeFallback.introduction)
+      : activeFallback.introduction;
+
+    const overview_title = mainRaw
+      ? getText(mainRaw.overview_title_en, mainRaw.overview_title_hi, activeFallback.overview_title)
+      : activeFallback.overview_title;
+
+    const overview_subtitle = mainRaw
+      ? getText(mainRaw.overview_subtitle_en, mainRaw.overview_subtitle_hi, activeFallback.overview_subtitle)
+      : activeFallback.overview_subtitle;
+
+    // 2. Resolve Dynamic Info Cards
+    let resolvedCards: CityInfoCard[] = [];
+    if (cardsRaw && cardsRaw.length > 0) {
+      resolvedCards = cardsRaw.map((card, index) => {
+        const titleText = getText(card.label_en, card.label_hi, fbEn.infoCards[index]?.title || 'Info');
+        const subtitleText = getText(card.value_en, card.value_hi, fbEn.infoCards[index]?.subtitle || '');
+        
+        // Find matching icon or map default sequential fallback icon
+        const lookupKey = titleText.toLowerCase().trim();
+        const IconComponent = iconMap[lookupKey] || fbEn.infoCards[index % fbEn.infoCards.length].icon;
+
+        return {
+          icon: IconComponent,
+          title: titleText,
+          subtitle: subtitleText
+        };
+      });
+    } else {
+      resolvedCards = activeFallback.infoCards;
+    }
+
+    // 3. Resolve Dynamic Layout Body Descriptions
+    let resolvedDescs: string[] = [];
+    if (descsRaw && descsRaw.length > 0) {
+      resolvedDescs = descsRaw.map((desc, index) => 
+        getText(desc.description_en, desc.description_hi, activeFallback.descriptions[index] || '')
+      );
+    } else {
+      resolvedDescs = activeFallback.descriptions;
+    }
+
+    return {
+      heading,
+      introduction,
+      overview_title,
+      overview_subtitle,
+      infoCards: resolvedCards,
+      descriptions: resolvedDescs
+    };
+  }, [mainRaw, cardsRaw, descsRaw, language]);
+
+  return (
+    <div className="min-h-screen bg-white">
+      {/* Breadcrumb Navigation Block */}
       <div className="bg-gray-50 py-4 px-6 md:px-12 border-b border-gray-200">
         <div className="max-w-7xl mx-auto">
           <nav className="flex items-center space-x-2 text-sm text-gray-600">
@@ -120,16 +204,21 @@ export default function HistoryPage() {
               href="/"
               className="hover:text-[#800000] transition-colors duration-200"
             >
-              Home
+              {language == 'en' ? 'Home' : 'होम'}
             </Link>
             <span>›</span>
-            <span className="text-gray-400">About</span>
+            <span className="text-gray-400">
+              {language == 'en' ? 'About' : 'परिचय'}
+            </span>
             <span>›</span>
-            <span className="text-[#800000] font-medium">History</span>
+            <span className="text-[#800000] font-medium">
+              {language == 'en' ? 'About the City' : 'शहर के बारे में'}
+            </span>
           </nav>
         </div>
       </div>
 
+      {/* Hero Header Jumbotron Banner */}
       <section className="relative bg-gradient-to-br from-[#800000] via-[#631012] to-[#8B1E1E] overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-20 left-20 w-72 h-72 bg-white rounded-full blur-3xl animate-pulse"></div>
@@ -146,75 +235,18 @@ export default function HistoryPage() {
           className="relative z-10 text-center py-24 md:py-32 px-6 md:px-12"
         >
           <h1 className="text-5xl md:text-7xl font-black text-white tracking-tight mb-6">
-            Our History
+            {computedData.heading}
           </h1>
-          {connectivityData?.description ? (
-            <div
-              className="text-white/90 max-w-3xl mx-auto text-lg md:text-xl leading-relaxed font-light"
-              dangerouslySetInnerHTML={{ __html: connectivityData.description }}
-            />
-          ) : (
-            <p className="text-white/90 max-w-3xl mx-auto text-lg md:text-xl leading-relaxed font-light">
-              From our establishment in 1986 to becoming an Institute of
-              National Importance — a journey of excellence and growth.
-            </p>
-          )}
+          <div
+            className="text-white/90 max-w-3xl mx-auto text-lg md:text-xl leading-relaxed font-light"
+            dangerouslySetInnerHTML={{ __html: computedData.introduction }}
+          />
         </motion.div>
       </section>
 
-      <section className="relative py-16 px-6 bg-white">
-        <div className="max-w-5xl mx-auto relative z-10">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={fadeUp}
-            transition={{ duration: 0.6, ease: 'easeOut' }}
-            className="text-center"
-          >
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8, delay: 0.3 }}
-              className="text-gray-700 leading-relaxed text-lg max-w-4xl mx-auto space-y-4"
-            >
-              <p>
-                National Institute of Technology Hamirpur (NIT Hamirpur) is one
-                of the thirty-one NITs of India. It came into existence on{' '}
-                <span className="font-semibold text-[#800000]">
-                  7th August 1986
-                </span>{' '}
-                as Regional Engineering College (REC) — a joint and cooperative
-                enterprise of the Government of India and the Government of
-                Himachal Pradesh.
-              </p>
-              <p>
-                At the time of its inception, the Institute had only two
-                departments:
-              </p>
-              <div className="flex justify-center gap-8 mt-6 mb-6">
-                <div className="bg-white px-6 py-3 rounded-lg shadow-md border border-gray-200">
-                  <span className="font-semibold text-[#800000]">
-                    Civil Engineering
-                  </span>
-                </div>
-                <div className="bg-white px-6 py-3 rounded-lg shadow-md border border-gray-200">
-                  <span className="font-semibold text-[#800000]">
-                    Electrical Engineering
-                  </span>
-                </div>
-              </div>
-              <p className="text-gray-600 italic">
-                with an initial intake of 30 students in each.
-              </p>
-            </motion.div>
-          </motion.div>
-        </div>
-      </section>
-
+      {/* Overview Grid Section */}
       <section className="relative py-24 px-6 bg-gradient-to-b from-white via-gray-50/50 to-white">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-7xl mx-auto">
           <motion.div
             initial="hidden"
             whileInView="visible"
@@ -224,331 +256,135 @@ export default function HistoryPage() {
             className="text-center mb-16"
           >
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              Timeline
+              {computedData.overview_title}
             </h2>
             <p className="text-gray-600 max-w-2xl mx-auto text-lg leading-relaxed">
-              Key milestones in our journey from REC to NIT
+              {computedData.overview_subtitle}
             </p>
           </motion.div>
 
-          <div className="hidden md:block relative">
-            <div className="absolute left-1/2 transform -translate-x-1/2 top-0 bottom-0 w-1 bg-gradient-to-b from-[#631012] via-[#8B1E1E] to-[#631012]"></div>
-
-            {timelineEvents.map((event, index) => {
-              const isLeft = index % 2 === 0;
+          {/* Render cards dynamically from computed server state */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            {computedData.infoCards.map((info, index) => {
+              const Icon = info.icon;
               return (
                 <motion.div
                   key={index}
                   initial="hidden"
                   whileInView="visible"
-                  viewport={{ once: true, margin: '-100px' }}
-                  variants={isLeft ? fadeInLeft : fadeInRight}
+                  viewport={{ once: true }}
+                  variants={fadeInScale}
                   transition={{
-                    duration: 0.7,
-                    ease: 'easeOut',
-                    delay: index * 0.2,
+                    duration: 0.5,
+                    delay: 0.1 + index * 0.1,
                   }}
-                  className={`relative flex items-center mb-16 ${
-                    isLeft ? 'justify-end' : 'justify-start'
-                  }`}
+                  whileHover={{
+                    y: -8,
+                    transition: { type: 'spring', stiffness: 300 },
+                  }}
+                  className="group relative bg-white rounded-3xl p-8 hover:shadow-2xl transition-all duration-300 border border-gray-100"
                 >
-                  <div
-                    className={`w-5/12 ${isLeft ? 'pr-12 text-right' : 'pl-12 text-left'}`}
-                  >
-                    <motion.div
-                      className="bg-white rounded-xl shadow-lg p-6 border border-gray-200 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
-                      whileHover={{ scale: 1.02 }}
-                    >
-                      <div className="mb-3">
-                        <span className="inline-block bg-[#631012] text-white px-4 py-1 rounded-full text-sm font-semibold">
-                          {event.year}
-                        </span>
-                      </div>
-                      <h3 className="text-xl font-bold text-gray-800 mb-2">
-                        {event.title}
-                      </h3>
-                      <p className="text-sm text-[#631012] font-medium mb-3">
-                        {event.date}
-                      </p>
-                      <p className="text-gray-600 leading-relaxed">
-                        {event.description}
-                      </p>
-                    </motion.div>
-                  </div>
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#800000]/5 to-transparent rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
-                  <div className="absolute left-1/2 transform -translate-x-1/2 w-5 h-5 bg-[#631012] rounded-full border-4 border-white shadow-lg z-10"></div>
+                  <div className="relative text-center">
+                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#800000] to-[#631012] flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                      <Icon className="w-8 h-8 text-white" />
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-[#800000] transition-colors">
+                      {info.title}
+                    </h3>
+                    <p className="text-gray-600">{info.subtitle}</p>
+                  </div>
                 </motion.div>
               );
             })}
           </div>
 
-          <div className="md:hidden relative">
-            <div className="absolute left-6 top-0 bottom-0 w-1 bg-gradient-to-b from-[#631012] via-[#8B1E1E] to-[#631012]"></div>
-
-            {timelineEvents.map((event, index) => (
-              <motion.div
-                key={index}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, margin: '-50px' }}
-                variants={fadeUp}
-                transition={{
-                  duration: 0.6,
-                  ease: 'easeOut',
-                  delay: index * 0.15,
-                }}
-                className="relative pl-16 pb-12 last:pb-0"
-              >
-                <div className="absolute left-4 top-0 w-5 h-5 bg-[#800000] rounded-full border-4 border-white shadow-lg z-10"></div>
-
-                <motion.div
-                  className="bg-white rounded-xl shadow-lg p-5 border border-gray-200"
-                  whileHover={{ scale: 1.02 }}
-                >
-                  <div className="mb-2">
-                    <span className="inline-block bg-[#800000] text-white px-3 py-1 rounded-full text-xs font-semibold">
-                      {event.year}
-                    </span>
-                  </div>
-                  <h3 className="text-lg font-bold text-gray-800 mb-2">
-                    {event.title}
-                  </h3>
-                  <p className="text-sm text-[#800000] font-medium mb-2">
-                    {event.date}
-                  </p>
-                  <p className="text-gray-600 leading-relaxed text-sm">
-                    {event.description}
-                  </p>
-                </motion.div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="relative py-24 px-6 bg-gradient-to-b from-white via-gray-50/50 to-white">
-        <div className="max-w-6xl mx-auto relative z-10">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={fadeUp}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-16"
-          >
-            <span className="inline-block px-4 py-1.5 bg-[#800000]/5 text-[#800000] text-sm font-semibold rounded-full mb-4">
-              Transformation Story
-            </span>
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              Journey of Excellence
-            </h2>
-            <p className="text-gray-600 max-w-2xl mx-auto text-lg leading-relaxed">
-              From humble beginnings to national recognition
-            </p>
-          </motion.div>
-
-          <div className="grid md:grid-cols-2 gap-8 mb-8">
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              variants={fadeInLeft}
-              transition={{ duration: 0.7, delay: 0.2 }}
-              className="group relative bg-white rounded-3xl shadow-lg p-8 hover:shadow-2xl transition-all duration-300 border border-gray-100"
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-[#800000]/5 to-transparent rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-
-              <div className="relative">
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#800000] to-[#631012] flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
-                    <svg
-                      className="w-7 h-7 text-white"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-                      />
-                    </svg>
-                  </div>
-                  <div>
-                    <span className="inline-block px-3 py-1 bg-[#800000]/10 text-[#800000] text-xs font-bold rounded-full mb-1">
-                      1986
-                    </span>
-                    <h3 className="text-2xl font-bold text-gray-900 group-hover:text-[#800000] transition-colors">
-                      The Beginning
-                    </h3>
-                  </div>
-                </div>
-                <div className="space-y-4">
-                  <div className="flex items-start gap-3">
-                    <div className="w-2 h-2 bg-[#800000] rounded-full mt-2 flex-shrink-0"></div>
-                    <p className="text-gray-700 leading-relaxed">
-                      <span className="font-bold text-gray-900">
-                        2 Departments:
-                      </span>{' '}
-                      Civil & Electrical Engineering
-                    </p>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <div className="w-2 h-2 bg-[#800000] rounded-full mt-2 flex-shrink-0"></div>
-                    <p className="text-gray-700 leading-relaxed">
-                      <span className="font-bold text-gray-900">
-                        60 Students
-                      </span>{' '}
-                      admitted in the inaugural batch
-                    </p>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <div className="w-2 h-2 bg-[#800000] rounded-full mt-2 flex-shrink-0"></div>
-                    <p className="text-gray-700 leading-relaxed">
-                      <span className="font-bold text-gray-900">
-                        Regional Status:
-                      </span>{' '}
-                      Established as REC Hamirpur
-                    </p>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <div className="w-2 h-2 bg-[#800000] rounded-full mt-2 flex-shrink-0"></div>
-                    <p className="text-gray-700 leading-relaxed">
-                      <span className="font-bold text-gray-900">Vision:</span>{' '}
-                      Quality technical education in the Himalayan region
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              variants={fadeInRight}
-              transition={{ duration: 0.7, delay: 0.2 }}
-              className="group relative bg-white rounded-3xl shadow-lg p-8 hover:shadow-2xl transition-all duration-300 border border-gray-100"
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-[#800000]/5 to-transparent rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-
-              <div className="relative">
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#800000] to-[#631012] flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
-                    <svg
-                      className="w-7 h-7 text-white"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"
-                      />
-                    </svg>
-                  </div>
-                  <div>
-                    <span className="inline-block px-3 py-1 bg-[#800000]/10 text-[#800000] text-xs font-bold rounded-full mb-1">
-                      2025
-                    </span>
-                    <h3 className="text-2xl font-bold text-gray-900 group-hover:text-[#800000] transition-colors">
-                      Today
-                    </h3>
-                  </div>
-                </div>
-                <div className="space-y-4">
-                  <div className="flex items-start gap-3">
-                    <div className="w-2 h-2 bg-[#800000] rounded-full mt-2 flex-shrink-0"></div>
-                    <p className="text-gray-700 leading-relaxed">
-                      <span className="font-bold text-gray-900">
-                        20+ Departments:
-                      </span>{' '}
-                      Engineering, Sciences & Management
-                    </p>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <div className="w-2 h-2 bg-[#800000] rounded-full mt-2 flex-shrink-0"></div>
-                    <p className="text-gray-700 leading-relaxed">
-                      <span className="font-bold text-gray-900">
-                        5000+ Students
-                      </span>{' '}
-                      pursuing UG, PG & Doctoral programs
-                    </p>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <div className="w-2 h-2 bg-[#800000] rounded-full mt-2 flex-shrink-0"></div>
-                    <p className="text-gray-700 leading-relaxed">
-                      <span className="font-bold text-gray-900">
-                        National Importance:
-                      </span>{' '}
-                      Premier Technical Institution of India
-                    </p>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <div className="w-2 h-2 bg-[#800000] rounded-full mt-2 flex-shrink-0"></div>
-                    <p className="text-gray-700 leading-relaxed">
-                      <span className="font-bold text-gray-900">
-                        Excellence:
-                      </span>{' '}
-                      Research, Innovation & Academic Leadership
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-
+          {/* Dynamic Descriptive Paragraphs Section */}
           <motion.div
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
             variants={fadeUp}
             transition={{ duration: 0.7, delay: 0.4 }}
-            className="bg-gradient-to-r from-[#800000] to-[#8B1E1E] rounded-3xl shadow-2xl p-10 md:p-12 text-white relative overflow-hidden"
+            className="bg-white rounded-3xl shadow-xl border border-gray-200 p-8 md:p-12"
           >
-            <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMzLjMxNCAwIDYgMi42ODYgNiA2cy0yLjY4NiA2LTYgNi02LTIuNjg2LTYtNiAyLjY4Ni02IDYtNiIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjAuNSIgb3BhY2l0eT0iMC4xIi8+PC9nPjwvc3ZnPg==')] opacity-10"></div>
-
-            <div className="relative flex flex-col md:flex-row items-center gap-6">
-              <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg">
-                <svg
-                  className="w-8 h-8 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M13 10V3L4 14h7v7l9-11h-7z"
-                  />
-                </svg>
+            <div className="grid md:grid-cols-2 gap-8">
+              {/* Left Column Description Layout Mapping */}
+              <div className="space-y-4">
+                {computedData.descriptions.slice(0, 2).map((text, idx) => (
+                  <div key={idx} className="flex items-start gap-5">
+                    <div className="w-2 h-2 bg-[#800000] rounded-full mt-2.5 flex-shrink-0"></div>
+                    <p className="text-gray-700 leading-relaxed">{text}</p>
+                  </div>
+                ))}
               </div>
-              <div className="flex-1 text-center md:text-left">
-                <h4 className="text-2xl md:text-3xl font-bold mb-4">
-                  Continuing the Legacy of Excellence
-                </h4>
-                <p className="text-white/90 leading-relaxed text-lg">
-                  From a modest beginning with just 2 departments and 60
-                  students to becoming one of India&apos;s premier technical
-                  institutions, our journey reflects unwavering commitment to
-                  excellence. The transformation from REC to NIT and recognition
-                  as an Institute of National Importance marks pivotal
-                  milestones. Today, with 20+ departments, 5000+ students, and
-                  world-class research facilities, we continue to shape the
-                  future through cutting-edge education, groundbreaking
-                  research, and innovation that serves the nation and beyond.
-                </p>
+
+              {/* Right Column Description Layout Mapping */}
+              <div className="space-y-4">
+                {computedData.descriptions.slice(2, 4).map((text, idx) => (
+                  <div key={idx} className="flex items-start gap-5">
+                    <div className="w-2 h-2 bg-[#800000] rounded-full mt-2.5 flex-shrink-0"></div>
+                    <p className="text-gray-700 leading-relaxed">{text}</p>
+                  </div>
+                ))}
+                {/* Fallback layout support if additional dynamic records are added to database table */}
+                {computedData.descriptions.slice(4).map((text, idx) => (
+                  <div key={idx + 4} className="flex items-start gap-5">
+                    <div className="w-2 h-2 bg-[#800000] rounded-full mt-2.5 flex-shrink-0"></div>
+                    <p className="text-gray-700 leading-relaxed">{text}</p>
+                  </div>
+                ))}
               </div>
             </div>
           </motion.div>
         </div>
       </section>
 
-      
+      {/* Campus Embed Map Canvas Block */}
+      <section className="relative py-24 px-6 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={fadeUp}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+              {language == 'en' ? 'Location Map' : 'स्थान का नक्शा'}
+            </h2>
+            <p className="text-gray-600 max-w-2xl mx-auto text-lg leading-relaxed">
+              {language == 'en'
+                ? 'Explore our campus location in the scenic Hamirpur valley'
+                : 'सुंदर हमीरपुर घाटी में हमारे परिसर के स्थान की खोज करें'}
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={fadeUp}
+            transition={{ duration: 0.7, delay: 0.2 }}
+            className="bg-gradient-to-br from-gray-50 to-white rounded-3xl shadow-2xl p-6 md:p-8 border border-gray-200"
+          >
+            <div className="aspect-video w-full rounded-2xl overflow-hidden shadow-xl">
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3404.8919045449387!2d76.52076631515635!3d31.456267681398645!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x391adb4924f6f56b%3A0x2e7c3c1c6ea930c5!2sNational%20Institute%20of%20Technology%2C%20Hamirpur!5e0!3m2!1sen!2sin!4v1635847891234!5m2!1sen!2sin"
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title="NIT Hamirpur Location Map"
+              ></iframe>
+            </div>
+          </motion.div>
+        </div>
+      </section>
     </div>
   );
 }

@@ -264,7 +264,7 @@ function Academic() {
                                   size={12}
                                   className="text-gray-300 group-hover/link:text-[#800000] transition-colors sm:w-3.5 sm:h-3.5"
                                 />
-                                <span className="text-[clamp(10px,2vw,14px)] font-medium text-gray-600 group-hover/link:text-black transition-colors">
+                                <span className="block text-[clamp(11px,2vw,14px)] font-medium text-gray-600 group-hover/link:text-black transition-colors">
                                   {language == 'en' ? link.title : link.title2}
                                 </span>
                               </div>
