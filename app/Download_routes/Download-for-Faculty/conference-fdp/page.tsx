@@ -9,7 +9,7 @@ interface DownloadItem {
   id: number;
   rank: number;
   type: "faculty" | "students" | "miscellaneous";
-  category_en: "ug" | "pg" | "doctoral";
+  category_en: "general" | "cpda" | "fdp";
   category_hi: string;
   title_en: string;
   title_hi: string;
@@ -29,8 +29,8 @@ export default function WorkshopDownloadsPage() {
   const [data, setData] = useState<DownloadItem[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const type: DownloadItem["type"] = "students";
-  const category: "ug" | "pg" | "doctoral" = "pg";
+  const type: DownloadItem["type"] = "faculty";
+  const category: "general" | "cpda" | "fdp" = "fdp";
 
   useEffect(() => {
     const fetchData = async () => {
@@ -39,7 +39,7 @@ export default function WorkshopDownloadsPage() {
         const API_BASE = "http://localhost:4000/v1/downloads";
 
         const res = await fetch(
-          `${API_BASE}/data?type=${type}&category=${category}`,
+         `${API_BASE}/data?type=${type}&category=${category}`,
         );
 
         const result = await res.json();
