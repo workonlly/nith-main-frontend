@@ -10,16 +10,13 @@ const authoritiesData = [
     title2: 'शासी मंडल (BOG)', // Hindi Title
     code: '01',
     links: [
+      
+       
       {
-        title: 'Composition of BOG',
-        title2: 'BOG की संरचना',
-        href: 'https://nith.ac.in/uploads/topics/17642163716028.pdf',
-      },
-      {
-        title: 'Minutes of BOG',
-        title2: 'BOG का कार्यवृत्त',
-        href: '/authorities/minutesofbg',
-      },
+        title: ' BOG',
+        title2: 'BOG ',
+        href: '/authorities/bog',
+      }
     ],
   },
   {
@@ -27,15 +24,11 @@ const authoritiesData = [
     title2: 'वित्त समिति (FC)', // Hindi Title
     code: '02',
     links: [
+     
       {
-        title: 'Composition of FC',
-        title2: 'वित्त समिति की संरचना',
-        href: 'https://nith.ac.in/uploads/topics/17642162991410.pdf',
-      },
-      {
-        title: 'Minutes of FC',
-        title2: 'वित्त समिति का कार्यवृत्त',
-        href: '/authorities/minutesofc',
+        title: ' FC',
+        title2: 'वित्त समिति (FC)',
+        href: '/authorities/fc',
       },
     ],
   },
@@ -44,15 +37,11 @@ const authoritiesData = [
     title2: 'भवन एवं निर्माण समिति (BWC)', // Hindi Title
     code: '03',
     links: [
+      
       {
-        title: 'Composition of BWC',
-        title2: 'BWC की संरचना',
-        href: 'https://nith.ac.in/uploads/topics/16624339297916.pdf',
-      },
-      {
-        title: 'Minutes of BWC',
-        title2: 'BWC का कार्यवृत्त',
-        href: '/authorities/minutesbwc',
+        title: ' BWC',
+        title2: 'BWC',
+        href: '/authorities/bwc',
       },
     ],
   },
@@ -61,15 +50,11 @@ const authoritiesData = [
     title2: 'सीनेट', // Hindi Title
     code: '04',
     links: [
+     
       {
-        title: 'Composition of Senate',
-        title2: 'सीनेट की संरचना',
-        href: '/authorities/senate/composition',
-      },
-      {
-        title: 'Minutes of Senate',
-        title2: 'सीनेट का कार्यवृत्त',
-        href: '/authorities/minutesswc',
+        title: 'Senate',
+        title2: 'सीनेट',
+        href: '/authorities/senate',
       },
     ],
   },
