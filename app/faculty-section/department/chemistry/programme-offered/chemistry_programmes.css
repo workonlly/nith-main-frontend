@@ -1,0 +1,114 @@
+.chemistry-programmes-page {
+  min-height: 100vh;
+  background: #f4f4f4;
+  color: #222;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.chemistry-programmes-shell {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 860px);
+  gap: 18px;
+  align-items: start;
+  max-width: 1050px;
+  margin: 0 auto;
+  padding: 18px 14px 34px;
+}
+
+.chemistry-programmes-sidebar {
+  background: #fff;
+  border-right: 1px solid #ddd;
+}
+
+.chemistry-programmes-sidebar a {
+  display: block;
+  padding: 8px 16px;
+  border-bottom: 1px solid #f0f0f0;
+  color: #c0392b;
+  font-size: 14px;
+  line-height: 1.2;
+  text-decoration: none;
+}
+
+.chemistry-programmes-sidebar a:last-child {
+  border-bottom: 0;
+}
+
+.chemistry-programmes-sidebar a.active {
+  background: #8b0000;
+  color: #fff;
+  font-weight: 600;
+}
+
+.chemistry-programmes-sidebar a:hover,
+.chemistry-programmes-sidebar a:focus-visible {
+  background: #f6eeee;
+  color: #6e1515;
+  outline: none;
+}
+
+.chemistry-programmes-sidebar a.active:hover,
+.chemistry-programmes-sidebar a.active:focus-visible {
+  background: #8b0000;
+  color: #fff;
+}
+
+.chemistry-programmes-content {
+  min-height: 100vh;
+  padding: 24px 28px 44px;
+  background: #fff;
+  border: 1px solid #d8d8d8;
+}
+
+.chemistry-programmes-content h1 {
+  margin: 0 0 24px;
+  color: #7a0000;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.programmes-table-wrapper {
+  overflow-x: auto;
+}
+
+.programmes-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.programmes-table th,
+.programmes-table td {
+  padding: 14px;
+  border: 1px solid #e0e0e0;
+  text-align: left;
+  vertical-align: top;
+}
+
+.programmes-table th {
+  background: #f9f9f9;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.programmes-table td strong {
+  display: block;
+  font-size: 15px;
+  margin-bottom: 6px;
+  color: #111;
+}
+
+.programme-summary {
+  margin: 0;
+  color: #444;
+  line-height: 1.6;
+}
+
+.programme-summary a {
+  color: #8b0000;
+  text-decoration: underline;
+}
