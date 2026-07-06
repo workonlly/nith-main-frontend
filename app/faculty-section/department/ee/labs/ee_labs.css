@@ -1,0 +1,93 @@
+.ee-labs-page {
+  min-height: 100vh;
+  background: #f4f4f4;
+  color: #222;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.ee-labs-shell {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 860px);
+  gap: 18px;
+  align-items: start;
+  max-width: 1050px;
+  margin: 0 auto;
+  padding: 18px 14px 34px;
+}
+
+.ee-labs-sidebar {
+  background: #fff;
+  border-right: 1px solid #ddd;
+}
+
+.ee-labs-sidebar a {
+  display: block;
+  padding: 8px 16px;
+  border-bottom: 1px solid #f0f0f0;
+  color: #c0392b;
+  font-size: 14px;
+  line-height: 1.2;
+  text-decoration: none;
+}
+
+.ee-labs-sidebar a:last-child {
+  border-bottom: 0;
+}
+
+.ee-labs-sidebar a.active {
+  background: #8b0000;
+  color: #fff;
+  font-weight: 600;
+}
+
+.ee-labs-sidebar a:hover,
+.ee-labs-sidebar a:focus-visible {
+  background: #f6eeee;
+  color: #6e1515;
+  outline: none;
+}
+
+.ee-labs-sidebar a.active:hover,
+.ee-labs-sidebar a.active:focus-visible {
+  background: #8b0000;
+  color: #fff;
+}
+
+.ee-labs-content {
+  min-height: 100vh;
+  padding: 24px 28px 44px;
+  background: #fff;
+  border: 1px solid #d8d8d8;
+}
+
+.ee-labs-content h1 {
+  margin: 0 0 24px;
+  color: #7a0000;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1.25;
+  text-align: center;
+}
+
+.labs-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.labs-table th,
+.labs-table td {
+  padding: 12px 14px;
+  border: 1px solid #e0e0e0;
+  text-align: left;
+}
+
+.labs-table th {
+  background: #f9f9f9;
+  font-weight: 700;
+}
+
+.labs-table td {
+  color: #333;
+}
