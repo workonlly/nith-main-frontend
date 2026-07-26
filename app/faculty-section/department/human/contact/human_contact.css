@@ -1,0 +1,130 @@
+.human-contact-page {
+  min-height: 100vh;
+  background: #f4f4f4;
+  color: #222;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.human-contact-shell {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 860px);
+  gap: 18px;
+  align-items: start;
+  max-width: 1050px;
+  margin: 0 auto;
+  padding: 18px 14px 34px;
+}
+
+.human-contact-sidebar {
+  background: #fff;
+  border-right: 1px solid #ddd;
+}
+
+.human-contact-sidebar a {
+  display: block;
+  padding: 8px 16px;
+  border-bottom: 1px solid #f0f0f0;
+  color: #c0392b;
+  font-size: 14px;
+  line-height: 1.2;
+  text-decoration: none;
+}
+
+.human-contact-sidebar a:last-child {
+  border-bottom: 0;
+}
+
+.human-contact-sidebar a.active {
+  background: #8b0000;
+  color: #fff;
+  font-weight: 600;
+}
+
+.human-contact-sidebar a:hover,
+.human-contact-sidebar a:focus-visible {
+  background: #f6eeee;
+  color: #6e1515;
+  outline: none;
+}
+
+.human-contact-sidebar a.active:hover,
+.human-contact-sidebar a.active:focus-visible {
+  background: #8b0000;
+  color: #fff;
+}
+
+.human-contact-content {
+  min-height: 100vh;
+  padding: 20px 24px 44px;
+  background: #fff;
+  border: 1px solid #d8d8d8;
+}
+
+.contact-card {
+  max-width: 600px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  padding: 24px;
+  background: #fff;
+}
+
+.contact-card h1 {
+  margin: 0 0 16px;
+  color: #8b0000;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 22px;
+  font-weight: 700;
+  border-bottom: 2px solid #8b0000;
+  padding-bottom: 6px;
+}
+
+.contact-card address {
+  font-style: normal;
+  line-height: 1.6;
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.contact-card address strong {
+  display: block;
+  font-size: 16px;
+  color: #111;
+  margin-bottom: 4px;
+}
+
+.contact-card address span {
+  display: block;
+}
+
+.contact-details p {
+  margin: 8px 0;
+  font-size: 14px;
+  color: #333;
+}
+
+.contact-details strong {
+  color: #111;
+  min-width: 100px;
+  display: inline-block;
+}
+
+.contact-details a {
+  color: #0056b3;
+  text-decoration: none;
+}
+
+.contact-details a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 900px) {
+  .human-contact-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .human-contact-sidebar nav {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

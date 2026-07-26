@@ -1,129 +1,129 @@
-import React from 'react';
-import Link from 'next/link';
-import { useSelector } from 'react-redux';
-import { RootState } from '../../../redux/store';
-import { ChevronRight, ArrowUpRight, Cpu, Atom, Library } from 'lucide-react';
+import React from "react";
+import Link from "next/link";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../redux/store";
+import { ChevronRight, ArrowUpRight, Cpu, Atom, Library } from "lucide-react";
 
 const departmentData = [
   {
-    id: '01',
-    category: 'Engineering',
-    category2: 'अभियांत्रिकी', // Hindi Category
+    id: "01",
+    category: "Engineering",
+    category2: "अभियांत्रिकी", // Hindi Category
     icon: Cpu,
     sections: [
       {
-        title: 'B.Tech / M.Tech',
-        title2: 'बी.टेक / एम.टेक', // Hindi Section Title
+        title: "B.Tech / M.Tech",
+        title2: "बी.टेक / एम.टेक", // Hindi Section Title
         links: [
           {
-            title: 'Computer Science & Engineering',
-            title2: 'कंप्यूटर विज्ञान और इंजीनियरिंग',
-            href: '#',
+            title: "Computer Science & Engineering",
+            title2: "कंप्यूटर विज्ञान और इंजीनियरिंग",
+            href: "/faculty-section/department/cse",
           },
           {
-            title: 'Civil Engineering',
-            title2: 'सिविल इंजीनियरिंग',
-            href: '#',
+            title: "Civil Engineering",
+            title2: "सिविल इंजीनियरिंग",
+            href: "/faculty-section/department/civil",
           },
           {
-            title: 'Chemical Engineering',
-            title2: 'केमिकल इंजीनियरिंग',
-            href: '#',
+            title: "Chemical Engineering",
+            title2: "केमिकल इंजीनियरिंग",
+            href: "/faculty-section/department/chem",
           },
           {
-            title: 'Electronics & Comm. Engineering',
-            title2: 'इलेक्ट्रॉनिक्स और संचार इंजीनियरिंग',
-            href: '#',
+            title: "Electronics & Comm. Engineering",
+            title2: "इलेक्ट्रॉनिक्स और संचार इंजीनियरिंग",
+            href: "/faculty-section/department/ece",
           },
           {
-            title: 'Electrical Engineering',
-            title2: 'इलेक्ट्रिकल इंजीनियरिंग',
-            href: '#',
+            title: "Electrical Engineering",
+            title2: "इलेक्ट्रिकल इंजीनियरिंग",
+            href: "/faculty-section/department/ee",
           },
           {
-            title: 'Mechanical Engineering',
-            title2: 'मैकेनिकल इंजीनियरिंग',
-            href: '#',
+            title: "Mechanical Engineering",
+            title2: "मैकेनिकल इंजीनियरिंग",
+            href: "/faculty-section/department/mech",
           },
           {
-            title: 'Material Science & Engineering',
-            title2: 'पदार्थ विज्ञान और इंजीनियरिंग',
-            href: '#',
+            title: "Material Science & Engineering",
+            title2: "पदार्थ विज्ञान और इंजीनियरिंग",
+            href: "/faculty-section/department/msc",
           },
         ],
       },
     ],
   },
   {
-    id: '02',
-    category: 'Sciences',
-    category2: 'विज्ञान', // Hindi Category
+    id: "02",
+    category: "Sciences",
+    category2: "विज्ञान", // Hindi Category
     icon: Atom,
     sections: [
       {
-        title: 'Pure Sciences',
-        title2: 'शुद्ध विज्ञान', // Hindi Section Title
+        title: "Pure Sciences",
+        title2: "शुद्ध विज्ञान", // Hindi Section Title
         links: [
           {
-            title: 'Chemistry',
-            title2: 'रसायन विज्ञान',
-            href: '#',
+            title: "Chemistry",
+            title2: "रसायन विज्ञान",
+            href: "/faculty-section/department/chemistry",
           },
           {
-            title: 'Mathematics & Scientific Computing',
-            title2: 'गणित और वैज्ञानिक कंप्यूटिंग',
-            href: '#',
+            title: "Mathematics & Scientific Computing",
+            title2: "गणित और वैज्ञानिक कंप्यूटिंग",
+            href: "/faculty-section/department/mnc",
           },
           {
-            title: 'Physics & Photonics Science',
-            title2: 'भौतिकी और फोटोनिक्स विज्ञान',
-            href: '#',
+            title: "Physics & Photonics Science",
+            title2: "भौतिकी और फोटोनिक्स विज्ञान",
+            href: "/faculty-section/department/phy",
           },
         ],
       },
       {
-        title: 'Centres',
-        title2: 'केंद्र', // Hindi Section Title
+        title: "Centres",
+        title2: "केंद्र", // Hindi Section Title
         links: [
           {
-            title: 'Centre For Energy Studies',
-            title2: 'ऊर्जा अध्ययन केंद्र',
-            href: '#',
+            title: "Centre For Energy Studies",
+            title2: "ऊर्जा अध्ययन केंद्र",
+            href: "/faculty-section/department/energy",
           },
         ],
       },
     ],
   },
   {
-    id: '03',
-    category: 'Liberal Arts',
-    category2: 'उदार कला', // Hindi Category
+    id: "03",
+    category: "Liberal Arts",
+    category2: "उदार कला", // Hindi Category
     icon: Library,
     sections: [
       {
-        title: 'Professional Schools',
-        title2: 'व्यावसायिक स्कूल', // Hindi Section Title
+        title: "Professional Schools",
+        title2: "व्यावसायिक स्कूल", // Hindi Section Title
         links: [
           {
-            title: 'Architecture',
-            title2: 'वास्तुकला',
-            href: '#',
+            title: "Architecture",
+            title2: "वास्तुकला",
+            href: "/faculty-section/department/archi",
           },
           {
-            title: 'Management Studies',
-            title2: 'प्रबंधन अध्ययन',
-            href: '#',
+            title: "Management Studies",
+            title2: "प्रबंधन अध्ययन",
+            href: "/faculty-section/department/manage",
           },
         ],
       },
       {
-        title: 'Humanities',
-        title2: 'मानविकी', // Hindi Section Title
+        title: "Humanities",
+        title2: "मानविकी", // Hindi Section Title
         links: [
           {
-            title: 'Humanities & Social Sciences',
-            title2: 'मानविकी और सामाजिक विज्ञान',
-            href: '#',
+            title: "Humanities & Social Sciences",
+            title2: "मानविकी और सामाजिक विज्ञान",
+            href: "/faculty-section/department/human",
           },
         ],
       },
@@ -151,7 +151,7 @@ function Department() {
                     className="text-gray-400 group-hover/header:text-gray-900 transition-colors sm:w-4 sm:h-4"
                   />
                   <h3 className="text-[clamp(10px,2vw,14px)] font-bold uppercase tracking-wider text-gray-800">
-                    {language == 'en' ? column.category : column.category2}
+                    {language == "en" ? column.category : column.category2}
                   </h3>
                 </div>
               </div>
@@ -162,7 +162,7 @@ function Department() {
                   <div key={idx} className="group/section">
                     {/* Sub-Section Title (Only if multiple sections exist or explicit titles needed) */}
                     <h4 className="text-[clamp(9px,1.8vw,12px)] font-semibold text-gray-400 uppercase tracking-widest mb-2 sm:mb-3 pl-1 sm:pl-2 border-l border-transparent group-hover/section:border-gray-200 transition-all">
-                      {language == 'en' ? section.title : section.title2}
+                      {language == "en" ? section.title : section.title2}
                     </h4>
 
                     {/* Links List */}
@@ -170,7 +170,7 @@ function Department() {
                       {section.links.map((link) => (
                         <li key={link.title}>
                           <Link
-                            href={link.href === '#' ? '/' : link.href}
+                            href={link.href === "#" ? "/" : link.href}
                             className="flex items-center justify-between group/link py-1.5 sm:py-2 px-1 sm:px-2 rounded-r hover:bg-gray-50 transition-all duration-300"
                           >
                             <div className="flex items-center gap-2 sm:gap-3">
@@ -179,7 +179,7 @@ function Department() {
                                 className="text-gray-300 group-hover/link:text-[#800000] transition-colors sm:w-3.5 sm:h-3.5"
                               />
                               <span className="text-[clamp(10px,2vw,14px)] font-medium text-gray-600 group-hover/link:text-black transition-colors">
-                                {language == 'en' ? link.title : link.title2}
+                                {language == "en" ? link.title : link.title2}
                               </span>
                             </div>
 

@@ -1,22 +1,41 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import './chemistry_staff.css'
+import Link from "next/link";
+import "./chemistry_staff.css";
 
 const menuItems = [
-  { label: 'About Us', href: '/faculty-section/department/chemistry' },
-  { label: 'Vision & Mission', href: '/faculty-section/department/chemistry/vision-mission' },
-  { label: 'Faculty', href: '/faculty-section/department/chemistry/faculty' },
-  { label: 'Staff', href: '/faculty-section/department/chemistry/staff', active: true },
-  { label: 'Programme Offered', href: '/faculty-section/department/chemistry/programme-offered' },
-  { label: 'Labs', href: '/faculty-section/department/chemistry/labs' },
-  { label: 'Research Publications', href: '/faculty-section/department/chemistry/research-publications' },
-  { label: 'Contact', href: '/faculty-section/department/chemistry/contact' },
-]
+  { label: "About Us", href: "/faculty-section/department/chemistry" },
+  {
+    label: "Vision & Mission",
+    href: "/faculty-section/department/chemistry/vision-mission",
+  },
+  { label: "Faculty", href: "/faculty-section/department/chemistry/faculty" },
+  {
+    label: "Staff",
+    href: "/faculty-section/department/chemistry/staff",
+    active: true,
+  },
+  {
+    label: "Programme Offered",
+    href: "/faculty-section/department/chemistry/programme-offered",
+  },
+  { label: "Labs", href: "/faculty-section/department/chemistry/labs" },
+  {
+    label: "Research Publications",
+    href: "/faculty-section/department/chemistry/research-publications",
+  },
+  { label: "Contact", href: "/faculty-section/department/chemistry/contact" },
+];
 
 const officeTechnicalStaff = [
-  { serial: '1', name: 'Sh. Arun Kumar', designation: 'Technician', phone: '-', email: '--' },
-]
+  {
+    serial: "1",
+    name: "Sh. Arun Kumar",
+    designation: "Technician",
+    phone: "-",
+    email: "--",
+  },
+];
 
 function StaffRows({ rows }) {
   return rows.map((member) => (
@@ -27,18 +46,21 @@ function StaffRows({ rows }) {
       <td>{member.phone}</td>
       <td>{member.email}</td>
     </tr>
-  ))
+  ));
 }
 
 export default function ChemistryStaffPage() {
   return (
     <main className="chemistry-staff-page">
       <div className="chemistry-staff-shell">
-        <aside className="chemistry-staff-sidebar" aria-label="Department navigation">
+        <aside
+          className="chemistry-staff-sidebar"
+          aria-label="Department navigation"
+        >
           <nav>
             {menuItems.map((item) => (
               <Link
-                className={item.active ? 'active' : ''}
+                className={item.active ? "active" : ""}
                 href={item.href}
                 key={item.label}
               >
@@ -69,5 +91,5 @@ export default function ChemistryStaffPage() {
         </section>
       </div>
     </main>
-  )
+  );
 }

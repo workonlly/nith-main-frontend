@@ -1,32 +1,45 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import './mech_labs.css'
+import Link from "next/link";
+import "./mech_labs.css";
 
 const menuItems = [
-  { label: 'About Us', href: '/faculty-section/department/mech' },
-  { label: 'Vision & Mission', href: '/faculty-section/department/mech/vision-mission' },
-  { label: 'Faculty', href: '/faculty-section/department/mech/faculty' },
-  { label: 'Staff', href: '/faculty-section/department/mech/staff' },
-  { label: 'Programme Offered', href: '/faculty-section/department/mech/programme-offered' },
-  { label: 'Labs', href: '/faculty-section/department/mech/labs', active: true },
-  { label: 'Research Publications', href: '/faculty-section/department/mech/research-publications' },
-  { label: 'Contact', href: '/faculty-section/department/mech/contact' },
-]
+  { label: "About Us", href: "/faculty-section/department/mech" },
+  {
+    label: "Vision & Mission",
+    href: "/faculty-section/department/mech/vision-mission",
+  },
+  { label: "Faculty", href: "/faculty-section/department/mech/faculty" },
+  { label: "Staff", href: "/faculty-section/department/mech/staff" },
+  {
+    label: "Programme Offered",
+    href: "/faculty-section/department/mech/programme-offered",
+  },
+  {
+    label: "Labs",
+    href: "/faculty-section/department/mech/labs",
+    active: true,
+  },
+  {
+    label: "Research Publications",
+    href: "/faculty-section/department/mech/research-publications",
+  },
+  { label: "Contact", href: "/faculty-section/department/mech/contact" },
+];
 
 const laboratories = [
-  'Strength of Materials',
-  'Theory of Machines',
-  'Dynamics of Machinery',
-  'Mechanical Measurements and Control',
-  'Heat Transfer',
-  'Refrigeration & Air Conditioning',
-  'Turbo Machines',
-  'Production',
-  'CAD/CAM',
-  'Metrology & Heat Engines',
-  'Computer Lab',
-]
+  "Strength of Materials",
+  "Theory of Machines",
+  "Dynamics of Machinery",
+  "Mechanical Measurements and Control",
+  "Heat Transfer",
+  "Refrigeration & Air Conditioning",
+  "Turbo Machines",
+  "Production",
+  "CAD/CAM",
+  "Metrology & Heat Engines",
+  "Computer Lab",
+];
 
 export default function MechLabsPage() {
   return (
@@ -36,7 +49,7 @@ export default function MechLabsPage() {
           <nav>
             {menuItems.map((item) => (
               <Link
-                className={item.active ? 'active' : ''}
+                className={item.active ? "active" : ""}
                 href={item.href}
                 key={item.label}
               >
@@ -68,5 +81,5 @@ export default function MechLabsPage() {
         </section>
       </div>
     </main>
-  )
+  );
 }

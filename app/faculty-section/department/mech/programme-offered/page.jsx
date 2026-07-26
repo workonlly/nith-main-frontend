@@ -1,43 +1,68 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import './mech_programmes.css'
+import Link from "next/link";
+import "./mech_programmes.css";
 
 const menuItems = [
-  { label: 'About Us', href: '/faculty-section/department/mech' },
-  { label: 'Vision & Mission', href: '/faculty-section/department/mech/vision-mission' },
-  { label: 'Faculty', href: '/faculty-section/department/mech/faculty' },
-  { label: 'Staff', href: '/faculty-section/department/mech/staff' },
-  { label: 'Programme Offered', href: '/faculty-section/department/mech/programme-offered', active: true },
-  { label: 'Labs', href: '/faculty-section/department/mech/labs' },
-  { label: 'Research Publications', href: '/faculty-section/department/mech/research-publications' },
-  { label: 'Contact', href: '/faculty-section/department/mech/contact' },
-]
+  { label: "About Us", href: "/faculty-section/department/mech" },
+  {
+    label: "Vision & Mission",
+    href: "/faculty-section/department/mech/vision-mission",
+  },
+  { label: "Faculty", href: "/faculty-section/department/mech/faculty" },
+  { label: "Staff", href: "/faculty-section/department/mech/staff" },
+  {
+    label: "Programme Offered",
+    href: "/faculty-section/department/mech/programme-offered",
+    active: true,
+  },
+  { label: "Labs", href: "/faculty-section/department/mech/labs" },
+  {
+    label: "Research Publications",
+    href: "/faculty-section/department/mech/research-publications",
+  },
+  { label: "Contact", href: "/faculty-section/department/mech/contact" },
+];
 
 const programmes = [
   {
-    name: 'Bachelor Programmes Offered',
-    description: <Link href="https://nith.ac.in/bachelor-course-structure-syllabus">Bachelor Course Structure & Syllabus</Link>,
+    name: "Bachelor Programmes Offered",
+    description: (
+      <Link href="https://nith.ac.in/bachelor-course-structure-syllabus">
+        Bachelor Course Structure & Syllabus
+      </Link>
+    ),
   },
   {
-    name: 'Master Programmes Offered',
-    description: <Link href="https://nith.ac.in/master-course-structure-syllabus">Master Course Structure & Syllabus</Link>,
+    name: "Master Programmes Offered",
+    description: (
+      <Link href="https://nith.ac.in/master-course-structure-syllabus">
+        Master Course Structure & Syllabus
+      </Link>
+    ),
   },
   {
-    name: 'Doctoral Programmes Offered',
-    description: <Link href="https://www.nith.ac.in/mechanical-engineering#">Doctoral Programme Information</Link>,
+    name: "Doctoral Programmes Offered",
+    description: (
+      <Link href="https://www.nith.ac.in/mechanical-engineering#">
+        Doctoral Programme Information
+      </Link>
+    ),
   },
-]
+];
 
 export default function MechProgrammesPage() {
   return (
     <main className="mech-programmes-page">
       <div className="mech-programmes-shell">
-        <aside className="mech-programmes-sidebar" aria-label="Department navigation">
+        <aside
+          className="mech-programmes-sidebar"
+          aria-label="Department navigation"
+        >
           <nav>
             {menuItems.map((item) => (
               <Link
-                className={item.active ? 'active' : ''}
+                className={item.active ? "active" : ""}
                 href={item.href}
                 key={item.label}
               >
@@ -74,5 +99,5 @@ export default function MechProgrammesPage() {
         </section>
       </div>
     </main>
-  )
+  );
 }

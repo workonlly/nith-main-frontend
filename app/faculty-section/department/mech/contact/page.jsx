@@ -1,28 +1,44 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import './mech_contact.css'
+import Link from "next/link";
+import "./mech_contact.css";
 
 const menuItems = [
-  { label: 'About Us', href: '/faculty-section/department/mech' },
-  { label: 'Vision & Mission', href: '/faculty-section/department/mech/vision-mission' },
-  { label: 'Faculty', href: '/faculty-section/department/mech/faculty' },
-  { label: 'Staff', href: '/faculty-section/department/mech/staff' },
-  { label: 'Programme Offered', href: '/faculty-section/department/mech/programme-offered' },
-  { label: 'Labs', href: '/faculty-section/department/mech/labs' },
-  { label: 'Research Publications', href: '/faculty-section/department/mech/research-publications' },
-  { label: 'Contact', href: '/faculty-section/department/mech/contact', active: true },
-]
+  { label: "About Us", href: "/faculty-section/department/mech" },
+  {
+    label: "Vision & Mission",
+    href: "/faculty-section/department/mech/vision-mission",
+  },
+  { label: "Faculty", href: "/faculty-section/department/mech/faculty" },
+  { label: "Staff", href: "/faculty-section/department/mech/staff" },
+  {
+    label: "Programme Offered",
+    href: "/faculty-section/department/mech/programme-offered",
+  },
+  { label: "Labs", href: "/faculty-section/department/mech/labs" },
+  {
+    label: "Research Publications",
+    href: "/faculty-section/department/mech/research-publications",
+  },
+  {
+    label: "Contact",
+    href: "/faculty-section/department/mech/contact",
+    active: true,
+  },
+];
 
 export default function MechContactPage() {
   return (
     <main className="mech-contact-page">
       <div className="mech-contact-shell">
-        <aside className="mech-contact-sidebar" aria-label="Department navigation">
+        <aside
+          className="mech-contact-sidebar"
+          aria-label="Department navigation"
+        >
           <nav>
             {menuItems.map((item) => (
               <Link
-                className={item.active ? 'active' : ''}
+                className={item.active ? "active" : ""}
                 href={item.href}
                 key={item.label}
               >
@@ -59,5 +75,5 @@ export default function MechContactPage() {
         </section>
       </div>
     </main>
-  )
+  );
 }

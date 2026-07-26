@@ -1,35 +1,46 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import './chemistry_labs.css'
+import Link from "next/link";
+import "./chemistry_labs.css";
 
 const menuItems = [
-  { label: 'About Us', href: '/faculty-section/department/chemistry' },
-  { label: 'Vision & Mission', href: '/faculty-section/department/chemistry/vision-mission' },
-  { label: 'Faculty', href: '/faculty-section/department/chemistry/faculty' },
-  { label: 'Staff', href: '/faculty-section/department/chemistry/staff' },
-  { label: 'Programme Offered', href: '/faculty-section/department/chemistry/programme-offered' },
-  { label: 'Labs', href: '/faculty-section/department/chemistry/labs', active: true },
-  { label: 'Research Publications', href: '/faculty-section/department/chemistry/research-publications' },
-  { label: 'Contact', href: '/faculty-section/department/chemistry/contact' },
-]
+  { label: "About Us", href: "/faculty-section/department/chemistry" },
+  {
+    label: "Vision & Mission",
+    href: "/faculty-section/department/chemistry/vision-mission",
+  },
+  { label: "Faculty", href: "/faculty-section/department/chemistry/faculty" },
+  { label: "Staff", href: "/faculty-section/department/chemistry/staff" },
+  {
+    label: "Programme Offered",
+    href: "/faculty-section/department/chemistry/programme-offered",
+  },
+  {
+    label: "Labs",
+    href: "/faculty-section/department/chemistry/labs",
+    active: true,
+  },
+  {
+    label: "Research Publications",
+    href: "/faculty-section/department/chemistry/research-publications",
+  },
+  { label: "Contact", href: "/faculty-section/department/chemistry/contact" },
+];
 
-const laboratories = [
-  'PG Lab',
-  'UG Lab 1',
-  'UG Lab 2',
-  'Research Lab',
-]
+const laboratories = ["PG Lab", "UG Lab 1", "UG Lab 2", "Research Lab"];
 
 export default function ChemistryLabsPage() {
   return (
     <main className="chemistry-labs-page">
       <div className="chemistry-labs-shell">
-        <aside className="chemistry-labs-sidebar" aria-label="Department navigation">
+        <aside
+          className="chemistry-labs-sidebar"
+          aria-label="Department navigation"
+        >
           <nav>
             {menuItems.map((item) => (
               <Link
-                className={item.active ? 'active' : ''}
+                className={item.active ? "active" : ""}
                 href={item.href}
                 key={item.label}
               >
@@ -61,5 +72,5 @@ export default function ChemistryLabsPage() {
         </section>
       </div>
     </main>
-  )
+  );
 }

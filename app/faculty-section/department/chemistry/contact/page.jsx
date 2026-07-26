@@ -1,28 +1,44 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import './chemistry_contact.css'
+import Link from "next/link";
+import "./chemistry_contact.css";
 
 const menuItems = [
-  { label: 'About Us', href: '/faculty-section/department/chemistry' },
-  { label: 'Vision & Mission', href: '/faculty-section/department/chemistry/vision-mission' },
-  { label: 'Faculty', href: '/faculty-section/department/chemistry/faculty' },
-  { label: 'Staff', href: '/faculty-section/department/chemistry/staff' },
-  { label: 'Programme Offered', href: '/faculty-section/department/chemistry/programme-offered' },
-  { label: 'Labs', href: '/faculty-section/department/chemistry/labs' },
-  { label: 'Research Publications', href: '/faculty-section/department/chemistry/research-publications' },
-  { label: 'Contact', href: '/faculty-section/department/chemistry/contact', active: true },
-]
+  { label: "About Us", href: "/faculty-section/department/chemistry" },
+  {
+    label: "Vision & Mission",
+    href: "/faculty-section/department/chemistry/vision-mission",
+  },
+  { label: "Faculty", href: "/faculty-section/department/chemistry/faculty" },
+  { label: "Staff", href: "/faculty-section/department/chemistry/staff" },
+  {
+    label: "Programme Offered",
+    href: "/faculty-section/department/chemistry/programme-offered",
+  },
+  { label: "Labs", href: "/faculty-section/department/chemistry/labs" },
+  {
+    label: "Research Publications",
+    href: "/faculty-section/department/chemistry/research-publications",
+  },
+  {
+    label: "Contact",
+    href: "/faculty-section/department/chemistry/contact",
+    active: true,
+  },
+];
 
 export default function ChemistryContactPage() {
   return (
     <main className="chemistry-contact-page">
       <div className="chemistry-contact-shell">
-        <aside className="chemistry-contact-sidebar" aria-label="Department navigation">
+        <aside
+          className="chemistry-contact-sidebar"
+          aria-label="Department navigation"
+        >
           <nav>
             {menuItems.map((item) => (
               <Link
-                className={item.active ? 'active' : ''}
+                className={item.active ? "active" : ""}
                 href={item.href}
                 key={item.label}
               >
@@ -59,5 +75,5 @@ export default function ChemistryContactPage() {
         </section>
       </div>
     </main>
-  )
+  );
 }

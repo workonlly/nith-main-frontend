@@ -1,0 +1,105 @@
+.human-labs-page {
+  min-height: 100vh;
+  background: #f4f4f4;
+  color: #222;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.human-labs-shell {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 860px);
+  gap: 18px;
+  align-items: start;
+  max-width: 1050px;
+  margin: 0 auto;
+  padding: 18px 14px 34px;
+}
+
+.human-labs-sidebar {
+  background: #fff;
+  border-right: 1px solid #ddd;
+}
+
+.human-labs-sidebar a {
+  display: block;
+  padding: 8px 16px;
+  border-bottom: 1px solid #f0f0f0;
+  color: #c0392b;
+  font-size: 14px;
+  line-height: 1.2;
+  text-decoration: none;
+}
+
+.human-labs-sidebar a:last-child {
+  border-bottom: 0;
+}
+
+.human-labs-sidebar a.active {
+  background: #8b0000;
+  color: #fff;
+  font-weight: 600;
+}
+
+.human-labs-sidebar a:hover,
+.human-labs-sidebar a:focus-visible {
+  background: #f6eeee;
+  color: #6e1515;
+  outline: none;
+}
+
+.human-labs-sidebar a.active:hover,
+.human-labs-sidebar a.active:focus-visible {
+  background: #8b0000;
+  color: #fff;
+}
+
+.human-labs-content {
+  min-height: 100vh;
+  padding: 20px 24px 44px;
+  background: #fff;
+  border: 1px solid #d8d8d8;
+}
+
+.human-labs-content h1 {
+  margin: 0 0 20px;
+  color: #7a0000;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 22px;
+  font-weight: 700;
+  border-bottom: 2px solid #7a0000;
+  padding-bottom: 6px;
+}
+
+.labs-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.labs-table th {
+  background: #8b0000;
+  color: #fff;
+  padding: 10px 14px;
+  text-align: left;
+  font-weight: 600;
+}
+
+.labs-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.labs-table tr:hover {
+  background-color: #f9f9f9;
+}
+
+@media (max-width: 900px) {
+  .human-labs-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .human-labs-sidebar nav {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
