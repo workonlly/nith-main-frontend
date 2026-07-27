@@ -1,43 +1,68 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import './chemistry_programmes.css'
+import Link from "next/link";
+import "./chemistry_programmes.css";
 
 const menuItems = [
-  { label: 'About Us', href: '/faculty-section/department/chemistry' },
-  { label: 'Vision & Mission', href: '/faculty-section/department/chemistry/vision-mission' },
-  { label: 'Faculty', href: '/faculty-section/department/chemistry/faculty' },
-  { label: 'Staff', href: '/faculty-section/department/chemistry/staff' },
-  { label: 'Programme Offered', href: '/faculty-section/department/chemistry/programme-offered', active: true },
-  { label: 'Labs', href: '/faculty-section/department/chemistry/labs' },
-  { label: 'Research Publications', href: '/faculty-section/department/chemistry/research-publications' },
-  { label: 'Contact', href: '/faculty-section/department/chemistry/contact' },
-]
+  { label: "About Us", href: "/faculty-section/department/chemistry" },
+  {
+    label: "Vision & Mission",
+    href: "/faculty-section/department/chemistry/vision-mission",
+  },
+  { label: "Faculty", href: "/faculty-section/department/chemistry/faculty" },
+  { label: "Staff", href: "/faculty-section/department/chemistry/staff" },
+  {
+    label: "Programme Offered",
+    href: "/faculty-section/department/chemistry/programme-offered",
+    active: true,
+  },
+  { label: "Labs", href: "/faculty-section/department/chemistry/labs" },
+  {
+    label: "Research Publications",
+    href: "/faculty-section/department/chemistry/research-publications",
+  },
+  { label: "Contact", href: "/faculty-section/department/chemistry/contact" },
+];
 
 const programmes = [
   {
-    name: 'Bachelor Programmes Offered',
-    description: <Link href="https://nith.ac.in/bachelor-course-structure-syllabus">Bachelor Course Structure & Syllabus</Link>,
+    name: "Bachelor Programmes Offered",
+    description: (
+      <Link href="https://nith.ac.in/bachelor-course-structure-syllabus">
+        Bachelor Course Structure & Syllabus
+      </Link>
+    ),
   },
   {
-    name: 'Master Programmes Offered',
-    description: <Link href="https://nith.ac.in/master-course-structure-syllabus">Master Course Structure & Syllabus</Link>,
+    name: "Master Programmes Offered",
+    description: (
+      <Link href="https://nith.ac.in/master-course-structure-syllabus">
+        Master Course Structure & Syllabus
+      </Link>
+    ),
   },
   {
-    name: 'Doctoral Programmes Offered',
-    description: <Link href="https://www.nith.ac.in/chemistry#">Doctoral Programme Information</Link>,
+    name: "Doctoral Programmes Offered",
+    description: (
+      <Link href="https://www.nith.ac.in/chemistry#">
+        Doctoral Programme Information
+      </Link>
+    ),
   },
-]
+];
 
 export default function ChemistryProgrammesPage() {
   return (
     <main className="chemistry-programmes-page">
       <div className="chemistry-programmes-shell">
-        <aside className="chemistry-programmes-sidebar" aria-label="Department navigation">
+        <aside
+          className="chemistry-programmes-sidebar"
+          aria-label="Department navigation"
+        >
           <nav>
             {menuItems.map((item) => (
               <Link
-                className={item.active ? 'active' : ''}
+                className={item.active ? "active" : ""}
                 href={item.href}
                 key={item.label}
               >
@@ -74,5 +99,5 @@ export default function ChemistryProgrammesPage() {
         </section>
       </div>
     </main>
-  )
+  );
 }

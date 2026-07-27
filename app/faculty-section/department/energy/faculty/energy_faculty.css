@@ -1,0 +1,125 @@
+.energy-faculty-page {
+  min-height: 100vh;
+  background: #f4f4f4;
+  color: #222;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.energy-faculty-shell {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 860px);
+  gap: 18px;
+  align-items: start;
+  max-width: 1050px;
+  margin: 0 auto;
+  padding: 18px 14px 34px;
+}
+
+.energy-faculty-sidebar {
+  background: #fff;
+  border-right: 1px solid #ddd;
+}
+
+.energy-faculty-sidebar a {
+  display: block;
+  padding: 8px 16px;
+  border-bottom: 1px solid #f0f0f0;
+  color: #c0392b;
+  font-size: 14px;
+  line-height: 1.2;
+  text-decoration: none;
+}
+
+.energy-faculty-sidebar a:last-child {
+  border-bottom: 0;
+}
+
+.energy-faculty-sidebar a.active {
+  background: #8b0000;
+  color: #fff;
+  font-weight: 600;
+}
+
+.energy-faculty-sidebar a:hover,
+.energy-faculty-sidebar a:focus-visible {
+  background: #f6eeee;
+  color: #6e1515;
+  outline: none;
+}
+
+.energy-faculty-sidebar a.active:hover,
+.energy-faculty-sidebar a.active:focus-visible {
+  background: #8b0000;
+  color: #fff;
+}
+
+.energy-faculty-content {
+  min-height: 100vh;
+  padding: 20px 24px 44px;
+  background: #fff;
+  border: 1px solid #d8d8d8;
+}
+
+.faculty-group {
+  margin-bottom: 36px;
+}
+
+.faculty-group:last-child {
+  margin-bottom: 0;
+}
+
+.faculty-group h1 {
+  margin: 0 0 16px;
+  color: #7a0000;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.3;
+  border-bottom: 2px solid #7a0000;
+  padding-bottom: 6px;
+}
+
+.faculty-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 8px;
+  font-size: 13px;
+}
+
+.faculty-table th {
+  background: #8b0000;
+  color: #fff;
+  padding: 10px 12px;
+  text-align: left;
+  font-weight: 600;
+}
+
+.faculty-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.faculty-table tr:hover {
+  background-color: #f9f9f9;
+}
+
+.profile-link {
+  color: #8b0000;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.profile-link:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 900px) {
+  .energy-faculty-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .energy-faculty-sidebar nav {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
