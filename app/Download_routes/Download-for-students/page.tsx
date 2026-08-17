@@ -37,7 +37,10 @@ export default function WorkshopDownloadsPage() {
       try {
         setLoading(true);
         // const API_BASE = `${process.env.NEXT_PUBLIC_API_URL}/v1/downloads`;
-        const API_BASE = `${process.env.NEXT_PUBLIC_API_URL}/v1/downloads`;
+        const API_BASE =
+  process.env.NEXT_PUBLIC_API_URL
+    ? `${process.env.NEXT_PUBLIC_API_URL}/v1/downloads`
+    : "http://localhost:4000/v1/downloads";
 
         const res = await fetch(
           `${API_BASE}/data?type=${type}&category=${category}`,
